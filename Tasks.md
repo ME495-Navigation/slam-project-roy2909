@@ -8,7 +8,8 @@
   
 ## Task A
 * Task A.1 completed
-* Task A.2 launch file is left
+* Task A.2 completed
 * Task A.3 completed
-* 
+* Task A.4 completed
+* Task A.5 completed
   
