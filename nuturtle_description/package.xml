@@ -3,7 +3,7 @@
 <package format="3">
   <name>nuturtle_description</name>
   <version>0.1.1</version>
-  <description>Displays multiple TurtleBot3's in Rviz2</description>
+  <description>Loads multiple colored TurtleBot3's in Rviz2</description>
   <author>Rahul Roy</author>
   <maintainer email="rahulroy2909@gmail.com">rahulroy</maintainer>
   <license>APLv2</license>
