@@ -16,4 +16,4 @@
 
 ## Task B
 * Task B.1 completed
-* Task B.2 in progress -one test left
+* Task B.2 completed
