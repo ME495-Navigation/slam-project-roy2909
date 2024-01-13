@@ -68,10 +68,10 @@ TEST_CASE("operator- >>" "[geometry2d]")
 
 TEST_CASE("normalize_angle() >>" "[geometry2d]")
 {
-    // REQUIRE_THAT(turtlelib::normalize_angle(turtlelib::PI), Catch::Matchers::WithinAbs(turtlelib::PI, 1e-5));
-    REQUIRE_THAT(turtlelib::normalize_angle(-turtlelib::PI), Catch::Matchers::WithinAbs(-turtlelib::PI, 1e-5));
+    REQUIRE_THAT(turtlelib::normalize_angle(turtlelib::PI), Catch::Matchers::WithinAbs(turtlelib::PI, 1e-5));
+    REQUIRE_THAT(turtlelib::normalize_angle(-(turtlelib::PI)), Catch::Matchers::WithinAbs((turtlelib::PI), 1e-5));
     REQUIRE_THAT(turtlelib::normalize_angle(0.0), Catch::Matchers::WithinAbs(0.0, 1e-5));
-    REQUIRE_THAT(turtlelib::normalize_angle(-turtlelib::PI/4.0), Catch::Matchers::WithinAbs(-turtlelib::PI/4.0, 1e-6));
-    REQUIRE_THAT(turtlelib::normalize_angle(3.0*turtlelib::PI/2.0), Catch::Matchers::WithinAbs(-turtlelib::PI/2.0, 1e-6));
-    REQUIRE_THAT(turtlelib::normalize_angle(-5.0*turtlelib::PI/2.0), Catch::Matchers::WithinAbs(-turtlelib::PI/2.0, 1e-6));
+    REQUIRE_THAT(turtlelib::normalize_angle(-(turtlelib::PI/4.0)), Catch::Matchers::WithinAbs(-(turtlelib::PI/4.0), 1e-6));
+    REQUIRE_THAT(turtlelib::normalize_angle(3.0*turtlelib::PI/2.0), Catch::Matchers::WithinAbs(-(turtlelib::PI/2.0), 1e-6));
+    REQUIRE_THAT(turtlelib::normalize_angle(-(5.0*turtlelib::PI/2.0)), Catch::Matchers::WithinAbs(-(turtlelib::PI/2.0), 1e-6));
 }

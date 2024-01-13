@@ -52,18 +52,9 @@ namespace turtlelib
 
     
 double normalize_angle(double rad) {
-    // Use std::fmod to wrap the angle to the range (-PI, PI]
-    double normalized_angle = std::fmod(rad + PI, 2 * PI) - PI;
-
-    if (normalized_angle < -PI) {
-            normalized_angle += 2 * PI;
-        }
-
-        if (normalized_angle >= PI) {
-            normalized_angle -= 2 * PI;
-        }
-
-        return normalized_angle;
+    
+    double normalizedAngle = rad - (ceil((rad + PI)/(2*PI))-1)*2*PI;
+    return normalizedAngle;
 }
 
 Vector2D operator-(const Point2D & head, const Point2D & tail)
