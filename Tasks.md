@@ -12,4 +12,8 @@
 * Task A.3 completed
 * Task A.4 completed
 * Task A.5 completed
-  
+* Task A.6 completed
+
+## Task B
+* Task B.1 completed
+* Task B.2 in progress -one test left
