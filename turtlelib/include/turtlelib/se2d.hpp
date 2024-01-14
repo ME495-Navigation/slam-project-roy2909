@@ -95,6 +95,10 @@ namespace turtlelib
         /// for a description
         friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
 
+    private:
+        Vector2D trans;
+        double angle;
+
     };
 
 
