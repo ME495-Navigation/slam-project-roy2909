@@ -17,3 +17,5 @@
 ## Task B
 * Task B.1 completed
 * Task B.2 completed
+* Task B.3 completed
+* Task B.4 2 tests left

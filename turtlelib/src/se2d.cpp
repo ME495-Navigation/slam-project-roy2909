@@ -117,6 +117,7 @@ namespace turtlelib
 
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs)
     {
-        return lhs *= rhs;
+         lhs *= rhs;
+         return lhs;
     }
 }
