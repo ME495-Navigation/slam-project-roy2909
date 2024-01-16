@@ -16,7 +16,8 @@ TEST_CASE("stream extraction operator <<" "[se2d]") // Rahul,Roy
     output_stream << twist;
 
     // Check if the output matches the expected format
-    REQUIRE(output_stream.str() == "[1.0 2.0 3.0]");
+    REQUIRE(output_stream.str() == "[1 2 3]");
+    
 }
 
 TEST_CASE("stream insertion operator >>" "[se2d]") // Rahul,Roy
@@ -48,30 +49,30 @@ TEST_CASE("stream insertion operator >>" "[se2d]") // Rahul,Roy
 
 TEST_CASE("operator() transformation for Point2D" "[se2d]") // Rahul,Roy
 {
-    double angle = turtlelib::PI/4;
-    turtlelib::Vector2D vec ={1.0,2.0};
+    double angle = turtlelib::PI/2.0;
+    turtlelib::Vector2D vec ={0.0,1.0};
     turtlelib::Transform2D trans = {vec,angle};
     turtlelib::Point2D p;
-    p.x=3.0;
-    p.y=4.0;
+    p.x=1.0;
+    p.y=1.0;
     turtlelib::Point2D result = trans(p);
-    REQUIRE_THAT(result.x, Catch::Matchers::WithinAbs(-0.7071, 1e-5));
-    REQUIRE_THAT(result.y, Catch::Matchers::WithinAbs(5.9497, 1e-5));
+    REQUIRE_THAT(result.x, Catch::Matchers::WithinAbs(-1.0, 1e-5));
+    REQUIRE_THAT(result.y, Catch::Matchers::WithinAbs(2.0, 1e-5));
 
 
 }
 
 TEST_CASE("operator() transformation for Vector2D" "[se2d]") // Rahul,Roy
 {
-    double angle = turtlelib::PI/4;
-    turtlelib::Vector2D vec ={1.0,2.0};
+    double angle = turtlelib::PI/2.0;
+    turtlelib::Vector2D vec ={0.0,1.0};
     turtlelib::Transform2D trans = {vec,angle};
     turtlelib::Vector2D v;
-    v.x=3.0;
-    v.y=4.0;
+    v.x=1.0;
+    v.y=1.0;
     turtlelib::Vector2D result = trans(v);
-    REQUIRE_THAT(result.x, Catch::Matchers::WithinAbs(-0.7071, 1e-5));
-    REQUIRE_THAT(result.y, Catch::Matchers::WithinAbs(5.9497, 1e-5));
+    REQUIRE_THAT(result.x, Catch::Matchers::WithinAbs(-1.0, 1e-5));
+    REQUIRE_THAT(result.y, Catch::Matchers::WithinAbs(2.0, 1e-5));
 
 
 }
@@ -95,13 +96,12 @@ TEST_CASE("operator() transformation for Twist2D" "[se2d]") // Rahul,Roy
 
 TEST_CASE("inv() Transform" "[se2d]") // Rahul,Roy
 {
-    double angle = turtlelib::PI/2.0;
+    double a = turtlelib::PI/2.0;
     turtlelib::Vector2D vec ={0.0,1.0};
-    turtlelib::Transform2D trans = {vec,angle};
-    turtlelib::Transform2D test_inv;
-    REQUIRE_THAT(test_inv.inv().rotation(), Catch::Matchers::WithinAbs(-angle, 1e-5));
-    REQUIRE_THAT(test_inv.inv().translation().x, Catch::Matchers::WithinAbs(-1.0, 1e-5));
-    REQUIRE_THAT(test_inv.inv().translation().y, Catch::Matchers::WithinAbs(0.0, 1e-5));
+    turtlelib::Transform2D trans = {{vec},a};
+    REQUIRE_THAT(trans.inv().rotation(), Catch::Matchers::WithinAbs(-a, 1e-5));
+    REQUIRE_THAT(trans.inv().translation().x, Catch::Matchers::WithinAbs(-1.0, 1e-5));
+    REQUIRE_THAT(trans.inv().translation().y, Catch::Matchers::WithinAbs(0.0, 1e-5));
 
 }
 
@@ -109,10 +109,10 @@ TEST_CASE("stream extraction operator << Transform" "[se2d]") // Rahul,Roy
 {
     turtlelib::Vector2D v;
     double angle = 2.0;
-    v.x = 2.0;
+    v.x = 2.1;
     v.y = 3.0;
     turtlelib::Transform2D t(v,angle);
-    std::string str = "deg: 2.0 x: 2.0 y: 3.0";
+    std::string str = "deg: 114.592 x: 2.1 y: 3";
     // Create an std::ostringstream to capture the output
     std::ostringstream output_stream;
     

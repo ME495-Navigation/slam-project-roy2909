@@ -89,7 +89,7 @@ namespace turtlelib
 
     std::ostream & operator<<(std::ostream & os, const Transform2D & tf)
     {
-        return os << "deg" << rad2deg(tf.angle) << " " << "x" << tf.trans.x << " " << " y " << tf.trans.y;
+        return os << "deg:" << " " << rad2deg(tf.angle) << " " << "x:" << " " << tf.trans.x << " " << "y:" << " "<< tf.trans.y;
     }
     
     std::istream & operator>>(std::istream & is, Transform2D & tf)
@@ -111,7 +111,7 @@ namespace turtlelib
         }
         is.ignore(50, '\n');
         angle = deg2rad(angle);
-        tf = Transform2D{trans,angle};
+        tf = Transform2D{{trans},angle};
         return is;
     }
 
