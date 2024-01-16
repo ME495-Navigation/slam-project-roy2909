@@ -156,3 +156,29 @@ TEST_CASE("translation()" "[se2d]") // Rahul,Roy
     REQUIRE_THAT(test.translation().y, Catch::Matchers::WithinAbs(y_test, 1e-5));
 
 }
+
+TEST_CASE("testing * operator for two transform2D objects", "[multiplication*]")
+{
+    turtlelib::Transform2D lhs{turtlelib::Vector2D{3.0,5.2}, turtlelib::PI/2};
+    turtlelib::Transform2D rhs{turtlelib::Vector2D{3.7,6.3}, turtlelib::PI/4};
+    lhs = operator*(lhs,rhs);
+
+REQUIRE(lhs.rotation() == 3*(turtlelib::PI/4));
+REQUIRE_THAT(lhs.translation().x,
+    Catch::Matchers::WithinAbs(-3.3,0.1));
+REQUIRE_THAT(lhs.translation().y,
+    Catch::Matchers::WithinAbs(8.9,0.1));
+}
+
+    TEST_CASE("testing the *= operator","[multiplication*=]")
+    {
+    turtlelib::Transform2D trans{turtlelib::Vector2D{2.4,4.4}, 0.0};
+    turtlelib::Transform2D rhs{turtlelib::Vector2D{2.1,1.1}, 0.0};
+    trans.operator*=(rhs);
+    REQUIRE_THAT(trans.rotation(),
+    Catch::Matchers::WithinAbs(0.0, 0.1));
+    REQUIRE_THAT(trans.translation().x,
+    Catch::Matchers::WithinAbs(4.5, 0.1));
+    REQUIRE_THAT(trans.translation().y,
+    Catch::Matchers::WithinAbs(5.5, 0.1));
+} 
