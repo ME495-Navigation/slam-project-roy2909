@@ -5,6 +5,7 @@ from launch.substitutions import Command, PathJoinSubstitution, TextSubstitution
 from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare, ExecutableInPackage
 
+
 def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(name="use_rviz",
@@ -20,7 +21,7 @@ def generate_launch_description():
                               choices=['red', 'green', 'blue', 'purple', ''],
                               description="Determines color of turtlebot3 to be passed to xacro file."),
 
-        SetLaunchConfiguration(name="rviz_color",
+        SetLaunchConfiguration(name="rviz_config",
                                value=[FindPackageShare("nuturtle_description"),
                                       TextSubstitution(text="/config/basic_"),
                                       LaunchConfiguration("color"),
@@ -30,7 +31,8 @@ def generate_launch_description():
         Node(package="joint_state_publisher",
              executable="joint_state_publisher",
              namespace=LaunchConfiguration("color"),
-             condition=IfCondition(EqualsSubstitution(LaunchConfiguration('use_jsp'), "true"))
+             condition=IfCondition(EqualsSubstitution(
+                 LaunchConfiguration('use_jsp'), "true"))
              ),
 
         Node(
@@ -57,8 +59,9 @@ def generate_launch_description():
             name="rviz2",
             arguments=["-d",
                        PathJoinSubstitution([FindPackageShare("nuturtle_description"),
-                                             LaunchConfiguration("rviz_color")])],
-            condition=IfCondition(EqualsSubstitution(LaunchConfiguration('use_rviz'), "true")),
+                                             LaunchConfiguration("rviz_config")])],
+            condition=IfCondition(EqualsSubstitution(
+                LaunchConfiguration('use_rviz'), "true")),
             on_exit=Shutdown()
         )
 
