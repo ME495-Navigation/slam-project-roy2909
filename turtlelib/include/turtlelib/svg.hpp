@@ -47,6 +47,11 @@ namespace turtlelib {
 
     private:
         std::vector<std::string> svgElements;
+        double midpointX = 408;
+        double midpointY = 528;
+        double conversion_factor = 96;
+
+
     };
 
 } // namespace turtlelib

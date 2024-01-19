@@ -19,7 +19,7 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 # you don't need or want to.
 # name is the name of the library without the extension or lib prefix
 # name creates a cmake "target"
-add_library(turtlelib src/geometry2d.cpp src/se2d.cpp)
+add_library(turtlelib src/geometry2d.cpp src/se2d.cpp src/svg.cpp)
 
 # Use target_include_directories so that #include"mylibrary/header.hpp" works
 # The use of the <BUILD_INTERFACE> and <INSTALL_INTERFACE> is because when
@@ -76,7 +76,7 @@ if(BUILD_TESTING)
     find_package(Catch2 3 REQUIRED)
     # A test is just an executable that is linked against the unit testing library
     enable_testing()
-    add_executable(turtlelib_test tests/test_geometry2d.cpp  tests/test_se2d.cpp)
+    add_executable(turtlelib_test tests/test_geometry2d.cpp  tests/test_se2d.cpp tests/test_svg.cpp)
     target_link_libraries(turtlelib_test turtlelib Catch2::Catch2WithMain)
 # register the test with CTest, telling it what executable to run
     add_test(NAME Testing_Turtlelib COMMAND turtlelib_test)
