@@ -7,22 +7,44 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp)
-find_package(std_msgs)
-find_package(std_srvs)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(visualization_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
-add_executable(nusim src/nusim.cpp)
-ament_target_dependencies(nusim rclcpp std_msgs std_srvs)
+
+
+set(srv_files
+  "srv/Teleport.srv"
+)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+${srv_files}
+  # LIBRARY_NAME ${PROJECT_NAME}
+)
+ament_export_dependencies(rosidl_default_runtime)
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+add_executable(nusim_ex src/nusim.cpp)
+ament_target_dependencies(nusim_ex rclcpp std_msgs std_srvs tf2 tf2_ros visualization_msgs)
+
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(nusim_ex "${cpp_typesupport_target}")
 
 install(TARGETS
-  nusim
-  DESTINATION lib/${PROJECT_NAME})
+  nusim_ex
+  DESTINATION lib/${PROJECT_NAME}
+)
 
-# install(DIRECTORY
-# DESTINATION share/${PROJECT_NAME}
-# )
+install(DIRECTORY
+  srv
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -35,5 +57,7 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+
 
 ament_package()
