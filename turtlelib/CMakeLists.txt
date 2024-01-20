@@ -43,13 +43,14 @@ target_compile_options(turtlelib PUBLIC -Wall -Wextra -Wpedantic)
 
 # Create an executable from the following source code files
 # The Name of the executable creates a cmake "target"
-# add_executable(Name src/Name_main.cpp)
+add_executable(frame_main src/frame_main.cpp)
 
 # Use target_link_libraries to add dependencies to a "target"
 # (e.g., a library or executable)
 # This will automatically add all required library files
 # that need to be linked
 # and paths to th locations of header files
+target_link_libraries(frame_main turtlelib)
 # target_link_libraries(Name Eigen3::Eigen turtlelib)
 
 find_package(Doxygen)
@@ -90,6 +91,7 @@ install(DIRECTORY include/turtlelib
 # The CMake Export contains files that allow other CMake projects
 # to find this project. It must be installed separately.
 # install(TARGETS Name turtlelib EXPORT project_name-targets)
+install(TARGETS frame_main turtlelib EXPORT turtlelib-targets)
 
 # The project_name-targets created by install(TARGETS) needs to be installed.
 # install(EXPORT ...) will generate a file called project_name-config.cmake
@@ -98,7 +100,7 @@ install(DIRECTORY include/turtlelib
 # find_package(project_name) from another cmake project
 # A user can then target_link_libraries(target project_name::library)
 # to use the libraries installed here
-# install(EXPORT project_name-targets
-#         FILE project_name-config.cmake
-#         NAMESPACE project_name::
-#         DESTINATION lib/cmake/${PROJECT_NAME})
+install(EXPORT turtlelib-targets
+        FILE turtlelib-config.cmake
+        NAMESPACE turtlelib::
+        DESTINATION lib/cmake/${PROJECT_NAME})

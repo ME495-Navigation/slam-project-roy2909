@@ -19,3 +19,11 @@
 * Task B.2 completed
 * Task B.3 completed
 * Task B.4 completed
+
+## Task C
+* Task C.1 completed
+* Task C.2 completed
+* Task C.3 completed
+* Task C.4 completed
+* Task C.5 completed
+* Task C.6 completed

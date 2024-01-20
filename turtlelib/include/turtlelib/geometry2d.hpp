@@ -110,6 +110,10 @@ namespace turtlelib
     /// \param v - the vector to print
     std::ostream & operator<<(std::ostream & os, const Vector2D & v);
 
+    /// \brief output a 2 normalized dimensional vector as [xcomponent ycomponent]
+    /// \param v - the vector to normalize
+    Vector2D normalize_vector(Vector2D V);
+
     /// \brief input a 2 dimensional vector
     ///   You should be able to read vectors entered as follows:
     ///   [x y] or x y

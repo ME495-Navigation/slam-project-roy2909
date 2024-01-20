@@ -45,6 +45,7 @@ install(DIRECTORY
   srv
   config
   launch
+  images
   DESTINATION share/${PROJECT_NAME}/
 )
 
