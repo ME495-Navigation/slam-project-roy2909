@@ -49,29 +49,29 @@ public:
         // arena_walls
         auto arena_x_desc = rcl_interfaces::msg::ParameterDescriptor{};
         arena_x_desc.description = "Length of arena in world x direction(m)";
-        this->declare_parameter("arena_x_length", 8.0, arena_x_desc);
-        arena_x_length_ = this->get_parameter("arena_x_length").as_double();
+        this->declare_parameter("walls.arena_x_length", 0.0, arena_x_desc);
+        arena_x_length_ = this->get_parameter("walls.arena_x_length").as_double();
 
         auto arena_y_desc = rcl_interfaces::msg::ParameterDescriptor{};
         arena_y_desc.description = "Length of arena in world y direction(m)";
-        this->declare_parameter("arena_y_length", 8.0, arena_y_desc);
-        arena_y_length_ = this->get_parameter("arena_y_length").as_double();
+        this->declare_parameter("walls.arena_y_length", 0.0, arena_y_desc);
+        arena_y_length_ = this->get_parameter("walls.arena_y_length").as_double();
 
         //obstacles
         auto obstacle_y_desc = rcl_interfaces::msg::ParameterDescriptor{};
         obstacle_y_desc.description = "List of the obstacles' y coordinates";
-        this->declare_parameter("obstacle_y", std::vector<double>{5.0,6.0}, obstacle_y_desc);
-        obstacles_y_ = this->get_parameter("obstacle_y").as_double_array();
+        this->declare_parameter("obstacles.y", std::vector<double>{}, obstacle_y_desc);
+        obstacles_y_ = this->get_parameter("obstacles.y").as_double_array();
 
         auto obstacle_x_desc = rcl_interfaces::msg::ParameterDescriptor{};
         obstacle_x_desc.description = "List of the obstacles' x coordinates";
-        this->declare_parameter("obstacle_x", std::vector<double>{2.0,3.0}, obstacle_x_desc);
-        obstacles_x_ = this->get_parameter("obstacle_x").get_parameter_value().get<std::vector<double>>();
+        this->declare_parameter("obstacles.x", std::vector<double>{}, obstacle_x_desc);
+        obstacles_x_ = this->get_parameter("obstacles.x").get_parameter_value().get<std::vector<double>>();
 
          auto obstacle_r_desc = rcl_interfaces::msg::ParameterDescriptor{};
         obstacle_r_desc.description = "obstacles' radius";
-        this->declare_parameter("obstacle_r", 0.038, obstacle_r_desc);
-        obstacles_r_ = this->get_parameter("obstacle_r").as_double();
+        this->declare_parameter("obstacles.r", 0.0, obstacle_r_desc);
+        obstacles_r_ = this->get_parameter("obstacles.r").as_double();
 
         reset_ = this->create_service<std_srvs::srv::Empty>(
             "~/reset",
