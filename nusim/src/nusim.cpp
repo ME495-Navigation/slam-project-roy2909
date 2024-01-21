@@ -310,7 +310,6 @@ private:
   double obstacles_r_;
   double height_;
 };
-
 /// \brief Main function for node
 int main(int argc, char ** argv)
 {
