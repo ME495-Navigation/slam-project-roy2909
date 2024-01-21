@@ -45,7 +45,21 @@ TEST_CASE("Svg DrawVector", "[Svg]")
     svg.drawVector(vec);
     svg.drawVector(vec3);
     svg.writeToFile("test2.svg");
-    REQUIRE(1 == 1);
+    std::stringstream os;
+
+    os << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n";
+    os << "<svg width=\"8.500000in\" height=\"11.000000in\" viewBox=\"0 0 816.000000 1056.000000\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+    os << "<defs>\n";
+    os << "  <marker style=\"overflow:visible\" id=\"Arrow1Sstart\" refX=\"0.0\" refY=\"0.0\" orient=\"auto\">\n";
+    os << "    <path transform=\"scale(0.2) translate(6,0)\" style=\"fill-rule:evenodd;fill:context-stroke;stroke:context-stroke;stroke-width:1.0pt\" d=\"M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z\"/>\n";
+    os << "  </marker>\n";
+    os << "</defs>\n";
+    os << "<circle cx=\"504\" cy=\"528\" r=\"3\" stroke=\"red\" fill=\"blue\" stroke-width=\"1\"/>\n";
+    os << "<line x1=\"504\" y1=\"528\" x2=\"408\" y2=\"528\" stroke=\"red\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>\n";
+    os << "<line x1=\"408\" y1=\"432\" x2=\"408\" y2=\"528\" stroke=\"green\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>\n";
+    os << "</svg>";
+    REQUIRE(svg.getSvgString() == os.str());
+    // REQUIRE(1 == 1);
 }
 
 TEST_CASE("Svg DrawCoordinateFrames", "[Svg]")
@@ -56,5 +70,20 @@ TEST_CASE("Svg DrawCoordinateFrames", "[Svg]")
     // svg.drawPoint(pointParams);
     svg.drawCoordinateFrame(vec);
     svg.writeToFile("test1.svg");
-    REQUIRE(1 == 1);
+    std::stringstream os;
+    os << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n";
+    os << "<svg width=\"8.500000in\" height=\"11.000000in\" viewBox=\"0 0 816.000000 1056.000000\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+    os << "<defs>\n";
+    os << "  <marker style=\"overflow:visible\" id=\"Arrow1Sstart\" refX=\"0.0\" refY=\"0.0\" orient=\"auto\">\n";
+    os << "    <path transform=\"scale(0.2) translate(6,0)\" style=\"fill-rule:evenodd;fill:context-stroke;stroke:context-stroke;stroke-width:1.0pt\" d=\"M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z\"/>\n";
+    os << "  </marker>\n";
+    os << "</defs>\n";
+    os << "<g>\n";
+    os << "<line x1=\"504\" y1=\"528\" x2=\"408\" y2=\"528\" stroke=\"red\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>\n";
+    os << "<line x1=\"408\" y1=\"432\" x2=\"408\" y2=\"528\" stroke=\"green\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>\n";
+    os << "<text x=\"408\" y=\"528\">{a}</text>\n";
+    os << "</g>\n";
+    os << "</svg>";
+    REQUIRE(svg.getSvgString() == os.str());
+    // REQUIRE(1 == 1);
 }
