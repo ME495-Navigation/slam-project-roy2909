@@ -28,10 +28,10 @@ URDF files for Nuturtle Turtlebot3
         (default: 'true')
 
     `'use_jsp':`
-        Controls whether the joint_state_publisher is used to publish default joint states. Valid choices are: ['true', 'false']
+        joint_state_publisher is launched or not. Valid choices are: ['true', 'false']
         (default: 'true')
 
     `'color':`
-        Determines color of turtlebot3 to be passed to xacro file. Valid choices are: ['red', 'green', 'blue', 'purple', '']
+        Determines color of turtlebot3 to be passed to xacro. Valid choices are: ['red', 'green', 'blue', 'purple', '']
         (default: 'purple')
 

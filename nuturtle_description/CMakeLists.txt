@@ -28,6 +28,7 @@ install(DIRECTORY
   config
   urdf
   meshes
+  images
   DESTINATION share/${PROJECT_NAME}
 )
 
