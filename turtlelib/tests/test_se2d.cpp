@@ -157,7 +157,7 @@ TEST_CASE("translation()" "[se2d]") // Rahul,Roy
 
 }
 
-TEST_CASE("testing * operator for two transform2D objects", "[multiplication*]")
+TEST_CASE("testing * operator for two transform2D objects", "[multiplication*]") // Shail,Dalal
 {
     turtlelib::Transform2D lhs{turtlelib::Vector2D{3.0,5.2}, turtlelib::PI/2};
     turtlelib::Transform2D rhs{turtlelib::Vector2D{3.7,6.3}, turtlelib::PI/4};
@@ -170,7 +170,7 @@ REQUIRE_THAT(lhs.translation().y,
     Catch::Matchers::WithinAbs(8.9,0.1));
 }
 
-    TEST_CASE("testing the *= operator","[multiplication*=]")
+    TEST_CASE("testing the *= operator","[multiplication*=]") // Shail,Dalal
     {
     turtlelib::Transform2D trans{turtlelib::Vector2D{2.4,4.4}, 0.0};
     turtlelib::Transform2D rhs{turtlelib::Vector2D{2.1,1.1}, 0.0};

@@ -66,6 +66,18 @@ TEST_CASE("operator- >>" "[geometry2d]") // Rahul,Roy
     REQUIRE(result.y == 3.0);
 }
 
+TEST_CASE("normalize_vector" "[geometry2d]") // Rahul,Roy
+{
+    turtlelib::Vector2D vec;
+    turtlelib::Vector2D result;
+    vec.x=6.0;
+    vec.y=6.0;
+    result = turtlelib::normalize_vector(vec);
+
+    REQUIRE_THAT(result.x  , Catch::Matchers::WithinAbs(0.707107, 1e-5));
+    REQUIRE_THAT(result.y  , Catch::Matchers::WithinAbs(0.707107, 1e-5));
+}
+
 TEST_CASE("normalize_angle() >>" "[geometry2d]") // Rahul,Roy
 {
     REQUIRE_THAT(turtlelib::normalize_angle(turtlelib::PI), Catch::Matchers::WithinAbs(turtlelib::PI, 1e-5));

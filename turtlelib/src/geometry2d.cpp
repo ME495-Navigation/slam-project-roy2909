@@ -66,8 +66,8 @@ Vector2D operator-(const Point2D & head, const Point2D & tail)
 }
 
 Vector2D normalize_vector(Vector2D v)
-{   auto v_x2=pow(v.x,2);
-    auto v_y2=pow(v.y,2);
+{   auto v_x2 = pow(v.x,2);
+    auto v_y2 = pow(v.y,2);
     const auto mag= sqrt((v_x2+ v_y2));
     return {v.x / mag, v.y / mag};
 }

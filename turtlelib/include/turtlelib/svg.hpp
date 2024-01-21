@@ -19,18 +19,9 @@ namespace turtlelib {
         double x2;
         double y2;
         std::string strokeColor;
-    };
-
-    // Structure to hold coordinate frame parameters
-    struct CoordinateFrameParams {
-        double originX;
-        double originY;
-        double xAxisX;
-        double xAxisY;
-        double yAxisX;
-        double yAxisY;
         std::string text;
     };
+
 
 
     class Svg {
@@ -39,7 +30,7 @@ namespace turtlelib {
         
         void drawPoint(const PointParams& pparams);
         void drawVector(const VectorParams& vparams);
-        void drawCoordinateFrame(const CoordinateFrameParams& cparams);
+        void drawCoordinateFrame(const VectorParams& vparams);
         void drawGroup(const std::vector<std::string>& groupElements);
 
         std::string getSvgString() const;

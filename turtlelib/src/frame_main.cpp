@@ -3,6 +3,7 @@
 #include <cstdio>
 #include "turtlelib/se2d.hpp"
 #include "turtlelib/geometry2d.hpp"
+#include "turtlelib/svg.hpp"
 
 int main()
 {
@@ -32,18 +33,56 @@ int main()
     std::cout << "p_a: " << p_a << "\n";
     std::cout << "p_b: " << p_b << "\n";
     std::cout << "p_c: " << p_c << "\n";
+    turtlelib::PointParams P,Q,W;
+    P.x=p_a.x;
+    P.y=p_a.y;
+    P.strokeColor="purple";
+    P.fillColor="purple";
+    Q.x=p_b.x;
+    Q.y=p_b.y;
+    Q.strokeColor="brown";
+    Q.fillColor="brown";
+    W.x=p_c.x;
+    W.y=p_c.y;
+    W.strokeColor="orange";
+    W.fillColor="orange";
+    turtlelib::Svg svg;
+    svg.drawPoint(P);
+    svg.drawPoint(Q);
+    svg.drawPoint(W);
 
-    turtlelib::Vector2D v_a, v_b, v_c;
+    turtlelib::Vector2D v_a, v_b, v_c,v_bhat;
+    turtlelib::VectorParams A,B,C;
 
     std::cout << "Enter vector v_b:" << std::endl;
     std::cin >> v_b;
     v_a = T_ab(v_b);
     v_c = T_cb(v_b);
-    std::cout << "v_bhat " << normalize_vector(v_b) << "\n";
+    v_bhat=normalize_vector(v_b);
+    std::cout << "v_bhat " << v_bhat << "\n";
     std::cout << "v_a " << v_a << "\n";
     std::cout << "v_b " << v_b << "\n";
     std::cout << "v_c " << v_c << std::endl;
+    A.x1=v_bhat.x;
+    A.y1=v_bhat.y;
+    A.x2=0.0;
+    A.y2=0.0;
+    A.strokeColor="brown";
+    B.x1=v_a.x;
+    B.y1=v_a.y;
+    B.x2=0.0;
+    B.y2=0.0;
+    B.strokeColor="purple";
+    C.x1=v_c.x;
+    C.y1=v_c.y;
+    C.x2=0.0;
+    C.y2=0.0;
+    C.strokeColor="orange";
+    svg.drawVector(A);
+    svg.drawVector(B);
+    svg.drawVector(C);
 
+    svg.writeToFile("frames.svg");
     turtlelib::Twist2D V_a, V_b, V_c;
 
     std::cout << "Enter twist V_b:" << std::endl;

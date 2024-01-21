@@ -1,7 +1,10 @@
 // svg.cpp
 #include "turtlelib/svg.hpp"
+#include "turtlelib/se2d.hpp"
+#include "turtlelib/geometry2d.hpp"
 #include <sstream>
 #include <fstream>
+#include <iostream>
 
 namespace turtlelib {
 
@@ -20,22 +23,42 @@ namespace turtlelib {
 
     void Svg::drawPoint(const PointParams& pparams) {
         std::stringstream ss;
-        ss << "<circle cx=\"" << pparams.x << "\" cy=\"" << pparams.y << "\" r=\"3\" stroke=\"" << pparams.strokeColor << "\" fill=\"" << pparams.fillColor << "\" stroke-width=\"1\"/>";
+        turtlelib::Transform2D T_ab{{408,528},turtlelib::PI};
+        turtlelib::Point2D p_a, p_t;
+        p_t=T_ab(p_a);
+        p_t.x=p_t.x+pparams.x*96;
+        p_t.y=p_t.y+pparams.y*96;
+        ss << "<circle cx=\"" << p_t.x << "\" cy=\"" << p_t.y << "\" r=\"3\" stroke=\"" << pparams.strokeColor << "\" fill=\"" << pparams.fillColor << "\" stroke-width=\"1\"/>";
         svgElements.push_back(ss.str());
     }
 
      void Svg::drawVector(const VectorParams& vparams) {
         std::stringstream ss;
-        ss << "<line x1=\"" << vparams.x1 << "\" y1=\"" << vparams.y1 << "\" x2=\"" << vparams.x2 << "\" y2=\"" << vparams.y2 << "\" stroke=\"" << vparams.strokeColor << "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>";
+        turtlelib::Transform2D T_ab{{408,528},turtlelib::PI};
+        turtlelib::Vector2D v_h, v_t;
+        v_h=T_ab(v_h);
+        v_t=T_ab(v_t);
+        v_h.x=v_h.x+vparams.x1*96;
+        v_h.y=v_h.y+vparams.y1*96;
+        v_t.x=v_t.x+vparams.x2*96;
+        v_t.y=v_t.y+vparams.y2*96;
+        ss << "<line x1=\"" << v_h.x << "\" y1=\"" << v_h.y << "\" x2=\"" << v_t.x << "\" y2=\"" << v_t.y << "\" stroke=\"" << vparams.strokeColor << "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>";
         svgElements.push_back(ss.str());
     }
 
 
-    void Svg::drawCoordinateFrame(const CoordinateFrameParams& cparams) {
+    void Svg::drawCoordinateFrame(const VectorParams& vparams) 
+    {   turtlelib::Transform2D T_ab{{408,528},turtlelib::PI};
+        turtlelib::Vector2D v_h, v_t;
+        v_h=T_ab(v_h);
+        v_t=T_ab(v_t);
+        v_h.x=v_h.x+vparams.x1*96;
+        v_h.y=v_h.y+vparams.y1*96;
+        v_t.x=v_t.x+vparams.x2*96;
+        v_t.y=v_t.y+vparams.y2*96;
         drawGroup({
-            "<line x1=\"" + std::to_string(cparams.originX) + "\" x2=\"" + std::to_string(cparams.xAxisX) + "\" y1=\"" + std::to_string(cparams.originY) + "\" y2=\"" + std::to_string(cparams.xAxisY) + "\" stroke=\"red\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>",
-            "<line x1=\"" + std::to_string(cparams.originX) + "\" x2=\"" + std::to_string(cparams.yAxisX) + "\" y1=\"" + std::to_string(cparams.originY) + "\" y2=\"" + std::to_string(cparams.yAxisY) + "\" stroke=\"green\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>",
-            "<text x=\"" + std::to_string(cparams.originX) + "\" y=\"" + std::to_string(cparams.originY + 0.25) + "\">" + cparams.text + "</text>"
+            "<line x1=\"" + std::to_string(v_h.x) + "\" x2=\"" + std::to_string(v_t.x) + "\" y1=\"" + std::to_string(v_h.y) + "\" y2=\"" + std::to_string(v_t.y) + "\" stroke=\""+ std::string(vparams.strokeColor)+ "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>",
+            "<text x=\"" + std::to_string(v_t.x) + "\" y=\"" + std::to_string(v_t.y) + "\">" + vparams.text + "</text>"
         });
     }
 
