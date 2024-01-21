@@ -26,11 +26,11 @@ namespace turtlelib
     void Svg::drawPoint(const PointParams &pparams)
     {
         std::stringstream ss;
-        turtlelib::Transform2D T_ab{{408, 528}, turtlelib::PI};
+        turtlelib::Transform2D T_ab{{midpointX, midpointY}, turtlelib::PI};
         turtlelib::Point2D p_a, p_t;
         p_t = T_ab(p_a);
-        p_t.x = p_t.x + pparams.x * 96;
-        p_t.y = p_t.y + pparams.y * 96;
+        p_t.x = p_t.x + pparams.x * conversion_factor;
+        p_t.y = p_t.y - pparams.y * conversion_factor;
         ss << "<circle cx=\"" << p_t.x << "\" cy=\"" << p_t.y << "\" r=\"3\" stroke=\"" << pparams.strokeColor << "\" fill=\"" << pparams.fillColor << "\" stroke-width=\"1\"/>";
         svgElements.push_back(ss.str());
     }
@@ -38,41 +38,51 @@ namespace turtlelib
     void Svg::drawVector(const VectorParams &vparams)
     {
         std::stringstream ss;
-        turtlelib::Transform2D T_ab{{408, 528}, turtlelib::PI};
+        turtlelib::Transform2D T_ab{{midpointX, midpointY}, turtlelib::PI};
         turtlelib::Vector2D v_h, v_t;
         v_h = T_ab(v_h);
         v_t = T_ab(v_t);
-        v_h.x = v_h.x + vparams.x1 * 96;
-        v_h.y = v_h.y + vparams.y1 * 96;
-        v_t.x = v_t.x + vparams.x2 * 96;
-        v_t.y = v_t.y + vparams.y2 * 96;
+        v_h.x = v_h.x + vparams.x1 * conversion_factor;
+        v_h.y = v_h.y - vparams.y1 * conversion_factor;
+        v_t.x = v_t.x + vparams.x2 * conversion_factor;
+        v_t.y = v_t.y - vparams.y2 * conversion_factor;
         ss << "<line x1=\"" << v_h.x << "\" y1=\"" << v_h.y << "\" x2=\"" << v_t.x << "\" y2=\"" << v_t.y << "\" stroke=\"" << vparams.strokeColor << "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>";
         svgElements.push_back(ss.str());
     }
 
     void Svg::drawCoordinateFrame(const VectorParams &vparams)
-    {
-        turtlelib::Transform2D T_ab{{408, 528}, turtlelib::PI};
-        turtlelib::Vector2D v_h, v_t;
-        v_h = T_ab(v_h);
-        v_t = T_ab(v_t);
-        v_h.x = v_h.x + vparams.x1 * 96;
-        v_h.y = v_h.y + vparams.y1 * 96;
-        v_t.x = v_t.x + vparams.x2 * 96;
-        v_t.y = v_t.y + vparams.y2 * 96;
-        drawGroup({"<line x1=\"" + std::to_string(v_h.x) + "\" x2=\"" + std::to_string(v_t.x) + "\" y1=\"" + std::to_string(v_h.y) + "\" y2=\"" + std::to_string(v_t.y) + "\" stroke=\"" + std::string(vparams.strokeColor) + "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>",
-                   "<text x=\"" + std::to_string(v_t.x) + "\" y=\"" + std::to_string(v_t.y) + "\">" + vparams.text + "</text>"});
+    {  
+        
+         std::stringstream ss;
+    svgElements.push_back("<g>");
+    // Draw the original vector
+    drawVector(vparams);
+    // Calculate and draw the green "y" vector
+    turtlelib::Transform2D T{turtlelib::PI / 2};
+    turtlelib::Vector2D v_yh, v_yt,v_headt,v_tailt;
+    v_headt.x=vparams.x1;
+    v_headt.y=vparams.y1;
+    v_tailt.x=vparams.x2;
+    v_tailt.y=vparams.y2;
+    v_yh = T(v_headt);
+    v_yt = T(v_tailt);
+
+    turtlelib::VectorParams greenVectorParams = {
+        v_yh.x, v_yh.y,
+        v_yt.x, v_yt.y,
+        "green", vparams.text
+    };
+
+    drawVector(greenVectorParams);
+
+    // Draw the text
+    ss << "<text x=\""<< midpointX<<"\" y=\""<< midpointY <<"\">"<< "{"<<vparams.text<<"}" <<"</text>";
+    svgElements.push_back(ss.str());
+
+    // Close the group tag
+    svgElements.push_back("</g>");
     }
 
-    void Svg::drawGroup(const std::vector<std::string> &groupElements)
-    {
-        svgElements.push_back("<g>");
-        for (const auto &element : groupElements)
-        {
-            svgElements.push_back(element);
-        }
-        svgElements.push_back("</g>");
-    }
 
     std::string Svg::getSvgString() const
     {

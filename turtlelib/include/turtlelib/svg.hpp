@@ -33,7 +33,6 @@ namespace turtlelib
         void drawPoint(const PointParams &pparams);
         void drawVector(const VectorParams &vparams);
         void drawCoordinateFrame(const VectorParams &vparams);
-        void drawGroup(const std::vector<std::string> &groupElements);
 
         std::string getSvgString() const;
         void writeToFile(const std::string &filename) const;
