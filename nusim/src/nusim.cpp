@@ -229,7 +229,7 @@ private:
 
   /// \brief Creates cylindrical obstacles as a MarkerArray
   void obstacle_marker()
-  { 
+  {
     if (obstacles_x_.size() != obstacles_y_.size()) {
       RCLCPP_ERROR(this->get_logger(), "Lengths of obstacles/x and obstacles/y must be the same.");
       rclcpp::shutdown();
