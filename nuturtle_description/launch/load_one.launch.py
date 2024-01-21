@@ -1,7 +1,8 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration, Shutdown
-from launch.substitutions import Command, PathJoinSubstitution, TextSubstitution, LaunchConfiguration, EqualsSubstitution
+from launch.substitutions import Command, PathJoinSubstitution, TextSubstitution
+from launch.substitutions import LaunchConfiguration, EqualsSubstitution
 from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare, ExecutableInPackage
 
@@ -15,11 +16,11 @@ def generate_launch_description():
         DeclareLaunchArgument(name="use_jsp",
                               default_value="true",
                               choices=['true', 'false'],
-                              description="Controls whether the joint_state_publisher is used to publish default joint states."),
+                              description="joint_state_publisher is launched or not."),
         DeclareLaunchArgument(name="color",
                               default_value="purple",
                               choices=['red', 'green', 'blue', 'purple', ''],
-                              description="Determines color of turtlebot3 to be passed to xacro file."),
+                              description="Determines color of turtlebot3 to be passed to xacro."),
 
         SetLaunchConfiguration(name="rviz_config",
                                value=[FindPackageShare("nuturtle_description"),
