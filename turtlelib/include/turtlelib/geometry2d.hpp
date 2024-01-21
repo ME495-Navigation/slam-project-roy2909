@@ -3,13 +3,12 @@
 /// \file
 /// \brief Two-dimensional geometric primitives.
 
-
 #include <iosfwd> // contains forward definitions for iostream objects
-#include<cmath>
+#include <cmath>
 namespace turtlelib
 {
     /// \brief PI.  Not in C++ standard until C++20.
-    constexpr double PI=3.14159265358979323846;
+    constexpr double PI = 3.14159265358979323846;
 
     /// \brief approximately compare two floating-point numbers using
     ///        an absolute comparison
@@ -20,9 +19,9 @@ namespace turtlelib
     /// NOTE: implement this in the header file
     /// constexpr means that the function can be computed at compile time
     /// if given a compile-time constant as input
-    constexpr bool almost_equal(double d1, double d2, double epsilon=1.0e-12)
+    constexpr bool almost_equal(double d1, double d2, double epsilon = 1.0e-12)
     {
-        return std::abs(d1-d2) < epsilon;
+        return std::abs(d1 - d2) < epsilon;
     }
 
     /// \brief convert degrees to radians
@@ -71,7 +70,7 @@ namespace turtlelib
     /// \brief output a 2 dimensional point as [xcomponent ycomponent]
     /// \param os - stream to output to
     /// \param p - the point to print
-    std::ostream & operator<<(std::ostream & os, const Point2D & p);
+    std::ostream &operator<<(std::ostream &os, const Point2D &p);
 
     /// \brief input a 2 dimensional point
     ///   You should be able to read vectors entered as follows:
@@ -79,7 +78,7 @@ namespace turtlelib
     /// \param is - stream from which to read
     /// \param p [out] - output vector
     /// HINT: See operator>> for Vector2D
-    std::istream & operator>>(std::istream & is, Point2D & p);
+    std::istream &operator>>(std::istream &is, Point2D &p);
 
     /// \brief A 2-Dimensional Vector
     struct Vector2D
@@ -96,19 +95,19 @@ namespace turtlelib
     /// \param tail point corresponding to the tail of the vector
     /// \return a vector that points from p1 to p2
     /// NOTE: this is not implemented in terms of -= because subtracting two Point2D yields a Vector2D
-    Vector2D operator-(const Point2D & head, const Point2D & tail);
+    Vector2D operator-(const Point2D &head, const Point2D &tail);
 
     /// \brief Adding a vector to a point yields a new point displaced by the vector
     /// \param tail The origin of the vector's tail
     /// \param disp The displacement vector
     /// \return the point reached by displacing by disp from tail
     /// NOTE: this is not implemented in terms of += because of the different types
-    Point2D operator+(const Point2D & tail, const Vector2D & disp);
+    Point2D operator+(const Point2D &tail, const Vector2D &disp);
 
     /// \brief output a 2 dimensional vector as [xcomponent ycomponent]
     /// \param os - stream to output to
     /// \param v - the vector to print
-    std::ostream & operator<<(std::ostream & os, const Vector2D & v);
+    std::ostream &operator<<(std::ostream &os, const Vector2D &v);
 
     /// \brief output a 2 normalized dimensional vector as [xcomponent ycomponent]
     /// \param v - the vector to normalize
@@ -132,7 +131,7 @@ namespace turtlelib
     /// We have lower level control however. For example:
     /// peek looks at the next unprocessed character in the buffer without removing it
     /// get removes the next unprocessed character from the buffer.
-    std::istream & operator>>(std::istream & is, Vector2D & v);
+    std::istream &operator>>(std::istream &is, Vector2D &v);
 }
 
 #endif

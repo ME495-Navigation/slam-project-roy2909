@@ -3,10 +3,9 @@
 /// \file
 /// \brief Two-dimensional rigid body transformations.
 
+#include <iosfwd> // contains forward definitions for iostream objects
 
-#include<iosfwd> // contains forward definitions for iostream objects
-
-#include"turtlelib/geometry2d.hpp"
+#include "turtlelib/geometry2d.hpp"
 
 namespace turtlelib
 {
@@ -28,14 +27,13 @@ namespace turtlelib
     /// \param os [in/out] the ostream to write to
     /// \param tw the twist to output
     /// \returns the ostream os  with the twist data inserted
-    std::ostream & operator<<(std::ostream & os, const Twist2D & tw);
+    std::ostream &operator<<(std::ostream &os, const Twist2D &tw);
 
     /// \brief read the Twist2D in the format [w x y] or as w x y
     /// \param is [in/out] the istream to read from
     /// \param tw [out] the twist read from the stream
     /// \returns the istream is with the twist characters removed
-    std::istream & operator>>(std::istream & is, Twist2D & tw);
-
+    std::istream &operator>>(std::istream &is, Twist2D &tw);
 
     /// \brief a rigid body transformation in 2 dimensions
     class Transform2D
@@ -81,7 +79,7 @@ namespace turtlelib
         /// in this object
         /// \param rhs - the first transform to apply
         /// \return a reference to the newly transformed operator
-        Transform2D & operator*=(const Transform2D & rhs);
+        Transform2D &operator*=(const Transform2D &rhs);
 
         /// \brief the translational component of the transform
         /// \return the x,y translation
@@ -93,34 +91,31 @@ namespace turtlelib
 
         /// \brief \see operator<<(...) (declared outside this class)
         /// for a description
-        friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
+        friend std::ostream &operator<<(std::ostream &os, const Transform2D &tf);
 
     private:
         Vector2D trans;
         double angle;
-
     };
-
 
     /// \brief should print a human readable version of the transform:
     /// An example output:
     /// deg: 90 x: 3 y: 5
     /// \param os - an output stream
     /// \param tf - the transform to print
-    std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
+    std::ostream &operator<<(std::ostream &os, const Transform2D &tf);
 
     /// \brief Read a transformation from stdin
     /// Should be able to read input either as output by operator<< or
     /// as 3 numbers (degrees, dx, dy) separated by spaces or newlines
-    std::istream & operator>>(std::istream & is, Transform2D & tf);
+    std::istream &operator>>(std::istream &is, Transform2D &tf);
 
     /// \brief multiply two transforms together, returning their composition
     /// \param lhs - the left hand operand
     /// \param rhs - the right hand operand
     /// \return the composition of the two transforms
     /// HINT: This function should be implemented in terms of *=
-    Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
-
+    Transform2D operator*(Transform2D lhs, const Transform2D &rhs);
 
 }
 
