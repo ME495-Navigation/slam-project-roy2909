@@ -50,37 +50,48 @@ namespace turtlelib
         svgElements.push_back(ss.str());
     }
 
-    void Svg::drawCoordinateFrame(const VectorParams &vparams)
-    {  
+     void Svg::drawCoordinateFrame(Point2D origin, Vector2D x_vector)
+    {   
         
-         std::stringstream ss;
-    svgElements.push_back("<g>");
-    // Draw the original vector
-    drawVector(vparams);
-    // Calculate and draw the green "y" vector
-    turtlelib::Transform2D T{turtlelib::PI / 2};
-    turtlelib::Vector2D v_yh, v_yt,v_headt,v_tailt;
-    v_headt.x=vparams.x1;
-    v_headt.y=vparams.y1;
-    v_tailt.x=vparams.x2;
-    v_tailt.y=vparams.y2;
-    v_yh = T(v_headt);
-    v_yt = T(v_tailt);
+       std::stringstream ss;
+       svgElements.push_back("<g>");
 
-    turtlelib::VectorParams greenVectorParams = {
-        v_yh.x, v_yh.y,
-        v_yt.x, v_yt.y,
-        "green", vparams.text
-    };
+    
+        turtlelib::Transform2D T_y{turtlelib::PI/2};
 
-    drawVector(greenVectorParams);
+        // Get y-vector coordinates
+        turtlelib::Vector2D y_vector = T_y(x_vector);
+        turtlelib::VectorParams X, Y;
+        x_vector.x=x_vector.x+origin.x;
+        x_vector.y=x_vector.y+origin.y;
+        X.x1=x_vector.x;
+        X.y1=x_vector.y;
+        X.x2=origin.x;
+        X.y2=origin.y;
+        X.text="a";
+        X.strokeColor="red";
+        
+        Y.x1=y_vector.x+origin.x;
+        Y.y1=y_vector.y+origin.y;
+        Y.x2=origin.x;
+        Y.y2=origin.y;
+        Y.strokeColor="green";
+        // Turtlelib coordinates are obtained through DrawVector
+        Svg::drawVector(X);
+        Svg::drawVector(Y);
 
-    // Draw the text
-    ss << "<text x=\""<< midpointX<<"\" y=\""<< midpointY <<"\">"<< "{"<<vparams.text<<"}" <<"</text>";
-    svgElements.push_back(ss.str());
+        // Convert tail coordinates to turtlelib coordinates for the text
+        turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{408, 528});
+        origin.x = origin.x * 96;
+        origin.y = -origin.y * 96;
 
-    // Close the group tag
-    svgElements.push_back("</g>");
+        turtlelib::Vector2D originalTail{origin.x, origin.y};
+        turtlelib::Vector2D transformedTail = turtlelibCoordinates(originalTail);
+
+        ss << "<text x=\""<< transformedTail.x<<"\" y=\""<< transformedTail.y <<"\">"<< "{"<<X.text<<"}" <<"</text>";
+        svgElements.push_back(ss.str());
+        svgElements.push_back("</g>");
+
     }
 
 
