@@ -28,8 +28,8 @@ TEST_CASE("Svg DrawPoint", "[Svg]")
 TEST_CASE("Svg DrawVector", "[Svg]")
 {
     turtlelib::Svg svg;
-    turtlelib::PointParams pointParams = {0, 0, "red", "blue"};
-    turtlelib::VectorParams vec = {1, 1, -0.5, 3, "red","a"};
+    turtlelib::PointParams pointParams = {1, 0, "red", "blue"};
+    turtlelib::VectorParams vec = {1, 0, 0, 0, "red","a"};
     turtlelib::VectorParams vec3;
     turtlelib::Transform2D T{turtlelib::PI/2};
     turtlelib::Vector2D vec2;
@@ -47,7 +47,6 @@ TEST_CASE("Svg DrawVector", "[Svg]")
     os << "</defs>\n";
     os << "<circle cx=\"504\" cy=\"528\" r=\"3\" stroke=\"red\" fill=\"blue\" stroke-width=\"1\"/>\n";
     os << "<line x1=\"504\" y1=\"528\" x2=\"408\" y2=\"528\" stroke=\"red\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>\n";
-    os << "<line x1=\"408\" y1=\"432\" x2=\"408\" y2=\"528\" stroke=\"green\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\"/>\n";
     os << "</svg>";
     REQUIRE(svg.getSvgString() == os.str());
     
@@ -57,9 +56,8 @@ TEST_CASE("Svg DrawCoordinateFrames", "[Svg]")
 {
     turtlelib::Svg svg;
     turtlelib::PointParams pointParams = {0, 0, "red", "blue"};
-    turtlelib::Point2D origin{-0.5,3};
+    turtlelib::Point2D origin{0.0,0.0};
     turtlelib::Vector2D X{1,0};
-    svg.drawPoint(pointParams);
     svg.drawCoordinateFrame(origin,X,"a");
     svg.writeToFile("test1.svg");
     std::stringstream os;
@@ -76,6 +74,6 @@ TEST_CASE("Svg DrawCoordinateFrames", "[Svg]")
     os << "<text x=\"408\" y=\"528\">{a}</text>\n";
     os << "</g>\n";
     os << "</svg>";
-    // REQUIRE(svg.getSvgString() == os.str());
-    REQUIRE(1 == 1);
+    REQUIRE(svg.getSvgString() == os.str());
+    
 }
