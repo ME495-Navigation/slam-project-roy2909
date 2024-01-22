@@ -8,7 +8,7 @@
 int main()
 {
     turtlelib::Transform2D T_ab, T_ba, T_bc, T_cb, T_ac, T_ca;
-
+    turtlelib::Svg svg;
     std::cout << "Enter transform T_{a,b}:" << std::endl;
     std::cin >> T_ab;
     std::cout << "Enter transform T_{b,c}:" << std::endl;
@@ -17,6 +17,20 @@ int main()
     T_cb = T_bc.inv();
     T_ac = T_ab * T_bc;
     T_ca = T_ac.inv();
+    //a frame
+    turtlelib::Point2D origin{0.0,0.0};
+    turtlelib::Vector2D X{1.0,0};
+    svg.drawCoordinateFrame(origin,X,"a");
+    //b frame
+    turtlelib::Point2D origin_b=T_ba(origin);
+    turtlelib::Vector2D X_b = T_ba(X);
+    svg.drawCoordinateFrame(origin_b,X_b,"b");
+    //c frame
+    turtlelib::Point2D origin_c=T_ca(origin);
+    turtlelib::Vector2D X_c = T_ca(X);
+    svg.drawCoordinateFrame(origin_c,X_c,"c");
+    turtlelib::Point2D p_a, p_b, p_c;
+    
     std::cout << "T_{a, b}: " << T_ab << "\n";
     std::cout << "T_{b, a}: " << T_ba << "\n";
     std::cout << "T_{b, c}: " << T_bc << "\n";
@@ -24,7 +38,6 @@ int main()
     std::cout << "T_{a, c}: " << T_ac << "\n";
     std::cout << "T_{c, a}: " << T_ca << std::endl;
 
-    turtlelib::Point2D p_a, p_b, p_c;
 
     std::cout << "Enter point p_a:" << std::endl;
     std::cin >> p_a;
@@ -46,7 +59,6 @@ int main()
     W.y = p_c.y;
     W.strokeColor = "orange";
     W.fillColor = "orange";
-    turtlelib::Svg svg;
     svg.drawPoint(P);
     svg.drawPoint(Q);
     svg.drawPoint(W);

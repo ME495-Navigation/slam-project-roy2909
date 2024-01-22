@@ -50,7 +50,7 @@ namespace turtlelib
         svgElements.push_back(ss.str());
     }
 
-     void Svg::drawCoordinateFrame(Point2D origin, Vector2D x_vector)
+     void Svg::drawCoordinateFrame(Point2D origin, Vector2D x_vector ,const std ::string text)
     {   
         
        std::stringstream ss;
@@ -68,7 +68,7 @@ namespace turtlelib
         X.y1=x_vector.y;
         X.x2=origin.x;
         X.y2=origin.y;
-        X.text="a";
+        X.text= text;
         X.strokeColor="red";
         
         Y.x1=y_vector.x+origin.x;

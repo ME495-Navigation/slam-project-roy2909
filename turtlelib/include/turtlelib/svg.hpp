@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include "geometry2d.hpp"
 
 namespace turtlelib
 {
@@ -32,7 +33,7 @@ namespace turtlelib
 
         void drawPoint(const PointParams &pparams);
         void drawVector(const VectorParams &vparams);
-        void drawCoordinateFrame(const VectorParams &vparams);
+        void drawCoordinateFrame(Point2D origin, Vector2D x_vector, const std::string);
 
         std::string getSvgString() const;
         void writeToFile(const std::string &filename) const;
