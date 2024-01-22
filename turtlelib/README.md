@@ -39,4 +39,4 @@ According to `C.46: By default, declare single-argument constructors explicit` .
 `According to Con.1: By default, make objects immutable`
 
 Immutable objects are easier to reason about, so make objects non-const only when there is a need to change their value. 
-Here Transform2D::inv() returns a new Transform2D object whearas Transform2D::operator*=() modifies the object itslef. 
+Here Transform2D::inv() returns a new Transform2D object whearas Transform2D::operator*=() modifies the object itself. 
