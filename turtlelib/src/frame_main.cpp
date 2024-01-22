@@ -71,10 +71,10 @@ int main()
     v_a = T_ab(v_b);
     v_c = T_cb(v_b);
     v_bhat = normalize_vector(v_b);
-    std::cout << "v_bhat " << v_bhat << "\n";
-    std::cout << "v_a " << v_a << "\n";
-    std::cout << "v_b " << v_b << "\n";
-    std::cout << "v_c " << v_c << std::endl;
+    std::cout << "v_bhat: " << v_bhat << "\n";
+    std::cout << "v_a: " << v_a << "\n";
+    std::cout << "v_b: " << v_b << "\n";
+    std::cout << "v_c: " << v_c << std::endl;
     A.x1 = v_bhat.x;
     A.y1 = v_bhat.y;
     A.x2 = 0.0;
@@ -101,9 +101,9 @@ int main()
     std::cin >> V_b;
     V_a = T_ab(V_b);
     V_c = T_cb(V_b);
-    std::cout << "V_a " << V_a << "\n";
-    std::cout << "V_b " << V_b << "\n";
-    std::cout << "V_c " << V_c << std::endl;
+    std::cout << "V_a: " << V_a << "\n";
+    std::cout << "V_b: " << V_b << "\n";
+    std::cout << "V_c: " << V_c << std::endl;
 
     return 0;
 }
