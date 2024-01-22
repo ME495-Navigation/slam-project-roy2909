@@ -19,8 +19,9 @@
 * Task B.2 completed
 * Task B.3 completed
 * Task B.4 completed
-* Task B.5 partially done
-* Task B.6 ALMOST DONE
+* Task B.5 completed
+* Task B.6 completed
+* Task B.7 completed
 
 ## Task C
 * Task C.1 completed
