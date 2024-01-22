@@ -31,12 +31,12 @@ int main()
     svg.drawCoordinateFrame(origin_c,X_c,"c");
     turtlelib::Point2D p_a, p_b, p_c;
     
-    std::cout << "T_{a, b}: " << T_ab << "\n";
-    std::cout << "T_{b, a}: " << T_ba << "\n";
-    std::cout << "T_{b, c}: " << T_bc << "\n";
-    std::cout << "T_{c, b}: " << T_cb << "\n";
-    std::cout << "T_{a, c}: " << T_ac << "\n";
-    std::cout << "T_{c, a}: " << T_ca << std::endl;
+    std::cout << "T_{a,b}: " << T_ab << "\n";
+    std::cout << "T_{b,a}: " << T_ba << "\n";
+    std::cout << "T_{b,c}: " << T_bc << "\n";
+    std::cout << "T_{c,b}: " << T_cb << "\n";
+    std::cout << "T_{a,c}: " << T_ac << "\n";
+    std::cout << "T_{c,a}: " << T_ca << std::endl;
 
 
     std::cout << "Enter point p_a:" << std::endl;

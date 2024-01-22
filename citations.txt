@@ -1,0 +1,2 @@
+1. Worked with Henry and Shail.
+2. Normalize angle : https://stackoverflow.com/questions/2320986/easy-way-to-keeping-angles-between-179-and-180-degrees

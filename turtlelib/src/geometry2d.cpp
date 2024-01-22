@@ -53,9 +53,10 @@ namespace turtlelib
 
     double normalize_angle(double rad)
     {
-
+// ############################## Begin_Citation [2] ##############################
         double normalizedAngle = rad - (ceil((rad + PI) / (2 * PI)) - 1) * 2 * PI;
         return normalizedAngle;
+// ############################## Begin_Citation [2] ##############################
     }
 
     Vector2D operator-(const Point2D &head, const Point2D &tail)
