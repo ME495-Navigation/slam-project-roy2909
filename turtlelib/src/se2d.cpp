@@ -125,4 +125,30 @@ namespace turtlelib
         lhs *= rhs;
         return lhs;
     }
+    Transform2D integrate_twist(Twist2D t)
+    {
+        Transform2D Tbs_prime;
+        Transform2D Tsb_prime;
+        Transform2D Tbs;
+        Transform2D Tbb_prime;
+        if (t.omega == 0)
+        {
+            double x = t.x;
+            double y = t.y;
+            Transform2D Tbb_prime(Vector2D{x, y});
+            return Tbb_prime;
+        }
+        else
+        {
+            double x = t.y / t.omega;
+            double y = -t.x / t.omega;
+            Transform2D Tsb(Vector2D{x, y});
+            Transform2D Tss_prime(t.omega);
+            Tbs = Tsb.inv();
+            Tbs_prime = Tbs;
+            Tsb_prime = Tbs_prime.inv();
+            Tbb_prime = Tbs * Tss_prime * Tsb_prime;
+            return Tbb_prime;
+        }
+    }
 }
