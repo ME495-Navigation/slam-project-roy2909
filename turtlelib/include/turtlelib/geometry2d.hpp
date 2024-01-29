@@ -88,6 +88,25 @@ namespace turtlelib
 
         /// \brief the y coordinate
         double y = 0.0;
+
+        /// \brief compose this vector with another and store the result 
+        /// in this object
+        /// \param rhs - the first vector to apply
+        /// \return a reference to the newly transformed operator
+        Vector2D & operator+=(const Vector2D & rhs);
+
+        /// \brief compose this vector with another and store the result 
+        /// in this object
+        /// \param rhs - the first vector to apply
+        /// \return a reference to the newly transformed operator
+        Vector2D & operator-=(const Vector2D & rhs);
+
+        /// \brief compose this vector with a scalar and store the result 
+        /// in this object
+        /// \param rhs - the scalar to apply
+        /// \return a reference to the newly transformed operator
+        Vector2D & operator*=(const double & rhs);
+
     };
 
     /// \brief Subtracting one point from another yields a vector
@@ -96,6 +115,47 @@ namespace turtlelib
     /// \return a vector that points from p1 to p2
     /// NOTE: this is not implemented in terms of -= because subtracting two Point2D yields a Vector2D
     Vector2D operator-(const Point2D &head, const Point2D &tail);
+
+    /// \brief adding two vectors 
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return A new Vector2D resulting from the vector addition.
+    Vector2D operator+(const Vector2D &lhs, const Vector2D &rhs);
+
+    /// \brief subtracting one vector from another
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return A new Vector2D resulting from the vector subtraction.
+    Vector2D operator-(const Vector2D &lhs, const Vector2D &rhs);
+
+    /// \brief multiply a lhs scalar with a vector
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return A new Vector2D resulting from the scalar multiplication.
+    Vector2D operator*(const double & lhs, Vector2D rhs);
+
+    /// \brief multiply a rhs scalar with a vector
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return A new Vector2D resulting from the scalar multiplication.
+    Vector2D operator*(Vector2D lhs, const double & rhs);
+
+    /// \brief the dot product of two vectors
+    /// \param v1 - the first vector
+    /// \param v2 - the second vector
+    /// \return the dot product of the vectors
+    double dot(Vector2D v1, Vector2D v2);
+
+    /// \brief compute the magnitude of the vector
+    /// \param v - the vector to calculate the magnitude of
+    /// \return the magnitude of the vector
+    double magnitude(Vector2D v);
+
+    /// \brief compute the angle between two vectors
+    /// \param v1 - the first vector
+    /// \param v2 - the second vector
+    /// \return the angle between two vectors
+    double angle(Vector2D v1, Vector2D v2);
 
     /// \brief Adding a vector to a point yields a new point displaced by the vector
     /// \param tail The origin of the vector's tail
