@@ -177,3 +177,23 @@ TEST_CASE("testing the *= operator", "[multiplication*=]") // Shail,Dalal
     REQUIRE_THAT(trans.translation().y,
                  Catch::Matchers::WithinAbs(5.5, 0.1));
 }
+
+TEST_CASE("integrate_twist()", "[se2d]") // Rahul,Roy
+{
+    // Pure traslation
+    turtlelib::Twist2D t1 = {0.0, 1.0,2.0};
+    turtlelib::Transform2D T1 = turtlelib::integrate_twist(t1);
+    REQUIRE_THAT(T1.translation().x, Catch::Matchers::WithinAbs(1.0, 1e-5));
+    REQUIRE_THAT(T1.translation().y, Catch::Matchers::WithinAbs(2.0, 1e-5));
+    // Pure rotation
+    turtlelib::Twist2D t2 = {-6.0, 0.0, 0.0};
+    turtlelib::Transform2D T2 = turtlelib::integrate_twist(t2);
+    REQUIRE_THAT(T2.rotation(), Catch::Matchers::WithinAbs(-6.0, 1e-5));
+    // Rotation and Traslation
+    turtlelib::Twist2D t3 = {2.5,3.2,-1.5};
+    turtlelib::Transform2D T3 = turtlelib::integrate_twist(t3);
+    REQUIRE_THAT(T3.translation().x, Catch::Matchers::WithinAbs(1.8467305138, 1e-5));
+    REQUIRE_THAT(T3.translation().y, Catch::Matchers::WithinAbs(1.9463805414, 1e-5));
+    REQUIRE_THAT(T3.rotation(), Catch::Matchers::WithinAbs(2.5, 1e-5));
+}
+
