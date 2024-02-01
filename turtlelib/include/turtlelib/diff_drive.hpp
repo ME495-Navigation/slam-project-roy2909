@@ -29,10 +29,10 @@ namespace turtlelib
         DiffDrive();
 
         DiffDrive(double wheel_radius, double track);
-        DiffDrive(double wheel_radius,  WheelPos pos, double track, RobotConfig config);
+        DiffDrive(double wheel_radius, double track, WheelPos pos, RobotConfig config);
         WheelPos get_pos() const;
         void set_pos(WheelPos new_pos);
-        Twist2D ForwardKinematics(WheelPos wheel_pos_new);
+        void ForwardKinematics(WheelPos wheel_pos_new);
         RobotConfig get_config() const;
         void set_config(RobotConfig new_config);
         WheelPos InverseKinematics(Twist2D Tb);
