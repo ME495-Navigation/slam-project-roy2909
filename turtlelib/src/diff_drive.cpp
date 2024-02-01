@@ -8,7 +8,7 @@ namespace turtlelib
 {
     DiffDrive::DiffDrive() : wheel_radius_(tb3_wheel_radius), wheel_track_(tb3_track_width), wheel_position_{0.0, 0.0}, q{0.0, 0.0, 0.0} {}
     DiffDrive::DiffDrive(double wheel_radius, double track) : wheel_radius_(wheel_radius), wheel_track_(track), wheel_position_{0.0, 0.0}, q{0.0, 0.0, 0.0} {}
-    DiffDrive::DiffDrive(double wheel_radius,double track, WheelPos pos, RobotConfig config) : wheel_radius_(wheel_radius), wheel_track_(track), wheel_position_{pos}, q{config} {}
+    DiffDrive::DiffDrive(double wheel_radius, double track, WheelPos pos, RobotConfig config) : wheel_radius_(wheel_radius), wheel_track_(track), wheel_position_{pos}, q{config} {}
     turtlelib::WheelPos DiffDrive::get_pos() const
     {
         return wheel_position_;
@@ -29,13 +29,14 @@ namespace turtlelib
         q.y = new_config.y;
         q.theta = new_config.theta;
     }
-    void DiffDrive::ForwardKinematics(WheelPos wheel_pos_new){
-        //Twist=H†(0)*deltheta(∆θL, ∆θR) 
+    void DiffDrive::ForwardKinematics(WheelPos wheel_pos_new)
+    {
+        // Twist=H†(0)*deltheta(∆θL, ∆θR)
         Twist2D t;
-        t.omega = ((-wheel_pos_new.left +wheel_pos_new.right)/wheel_track_ )*wheel_radius_ ;
-        t.x = ((wheel_pos_new.left + wheel_pos_new.right)/2) * wheel_radius_  ;
+        t.omega = ((-wheel_pos_new.left + wheel_pos_new.right) / wheel_track_) * wheel_radius_;
+        t.x = ((wheel_pos_new.left + wheel_pos_new.right) / 2) * wheel_radius_;
         t.y = 0.0;
-        //New frame relative to initial frame
+        // New frame relative to initial frame
         Transform2D Tbb_prime = integrate_twist(t);
 
         // Extract change in coordinaes relative to body frame
@@ -43,7 +44,6 @@ namespace turtlelib
         double dqb_theta = Tbb_prime.rotation();
         double dqb_x = Tbb_prime.translation().x;
         double dqb_y = Tbb_prime.translation().y;
-
 
         // Transform dqb in body frame to dq in fixed frame
 
@@ -68,6 +68,6 @@ namespace turtlelib
             throw std::logic_error("Twist causes slipping");
         }
 
-        return {((-(wheel_track_/2) * Tb.omega + Tb.x) / wheel_radius_), (((wheel_track_/2) * Tb.omega + Tb.x) / wheel_radius_)};
+        return {((-(wheel_track_ / 2) * Tb.omega + Tb.x) / wheel_radius_), (((wheel_track_ / 2) * Tb.omega + Tb.x) / wheel_radius_)};
     }
 }
