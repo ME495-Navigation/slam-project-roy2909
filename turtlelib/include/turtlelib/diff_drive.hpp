@@ -62,6 +62,11 @@ namespace turtlelib
         /// \param wheel_pos_new - new wheel positions
         void ForwardKinematics(WheelPos wheel_pos_new);
 
+        /// \brief gives body twist from wheel position
+        /// \param wheel_pos_new - new wheel positions
+        /// \return body twist
+        Twist2D BodyTwist(WheelPos wheel_pos_new);
+
         /// \brief get robot configuration
         /// \return robot configuration
         RobotConfig get_config() const;

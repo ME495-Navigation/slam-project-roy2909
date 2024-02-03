@@ -14,6 +14,7 @@
 #include "nav_msgs/msg/path.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 using std::placeholders::_1;
+using std::placeholders::_2;
 
 class Odometry : public rclcpp::Node
 {
@@ -22,7 +23,7 @@ public:
   : Node("Odometry")
   { // body_id
     auto body_id_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    wheel_radius_desc.description = "The name of the body frame of the robot";
+    body_id_desc.description = "The name of the body frame of the robot";
     this->declare_parameter("body_id", "blue/base_footprint" , body_id_desc);
     body_id_ = this->get_parameter("body_id").as_string();
     // odom_id
@@ -32,7 +33,7 @@ public:
     odom_id_ = this->get_parameter("odom_id").as_string();
     // wheel_left
     auto wheel_left_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    motor_cmd_max_desc.description = "The name of the left wheel joint";
+    wheel_left_desc.description = "The name of the left wheel joint";
     this->declare_parameter("wheel_left","blue/wheel_left_link", wheel_left_desc);
     wheel_left_ = this->get_parameter("wheel_left").as_string();
 
@@ -71,7 +72,7 @@ public:
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     
     // Subscribers
-    joint_state_subscriber_ = this->ccreate_subscription<sensor_msgs::msg::JointState>(
+    joint_state_subscriber_ = this->create_subscription<sensor_msgs::msg::JointState>(
       "joint_states", 10, std::bind(
         &Odometry::odometry_callback, 
         this,_1));
@@ -86,17 +87,37 @@ private:
 
 void odometry_callback(const sensor_msgs::msg::JointState &msg)
 {
-    new_wheel_pos.left=msg.position[0] -prev_wheel.left;
-    new_wheel_pos.right=msg.position[1] - prev_wheel.right;
-    robot_.ForwardKinematics(new_wheel_pos);
-    
+    new_wheel_.left=msg.position[0] -prev_wheel_.left;
+    new_wheel_.right=msg.position[1] - prev_wheel_.right;
+    robot_.ForwardKinematics(new_wheel_);
+    twistb_=robot_.BodyTwist(new_wheel_);
+    q_.setRPY(0, 0, robot_.get_config().theta);
+    odom_.header.frame_id = odom_id_;
+    odom_.child_frame_id = body_id_;
+    odom_.header.stamp = get_clock()->now();
+    odom_.pose.pose.position.x = robot_.get_config().x;
+    odom_.pose.pose.position.y = robot_.get_config().y;
+    odom_.pose.pose.position.z = 0.0;
+    odom_.pose.pose.orientation.x = q_.x();
+    odom_.pose.pose.orientation.y = q_.y();
+    odom_.pose.pose.orientation.z = q_.z();
+    odom_.pose.pose.orientation.w = q_.w();
+    odom_.twist.twist.linear.x = twistb_.x;
+    odom_.twist.twist.linear.y = twistb_.y;
+    odom_.twist.twist.angular.z = twistb_.omega;
+    odometry_publisher_->publish(odom_);
+    broadcast_odom_transform();
+    prev_wheel_.left=msg.position[0];
+    prev_wheel_.right=msg.position[1];
+
+
 
 }
 
 void initial_pose_callback(nuturtle_control::srv::InitialPose::Request::SharedPtr request,
     nuturtle_control::srv::InitialPose::Response::SharedPtr)
     {
-        robot_= turtlelib::DiffDrive{wheelradius_,track_width_,{0.0,0.0},{request->x,request->y,request->theta}};
+        robot_= turtlelib::DiffDrive(wheel_radius_,track_width_,{0.0,0.0},{request->x,request->y,request->theta});
     }
 
   void broadcast_odom_transform()
@@ -107,7 +128,7 @@ void initial_pose_callback(nuturtle_control::srv::InitialPose::Request::SharedPt
     t.header.frame_id = odom_id_;
     t.child_frame_id = body_id_;
     t.transform.translation.x = robot_.get_config().x;
-    t.transform.translation.y = obot_.get_config().y_;
+    t.transform.translation.y = robot_.get_config().y;
     t.transform.translation.z = 0.0;
     t.transform.rotation.x = q_.x();
     t.transform.rotation.y = q_.y();
@@ -118,15 +139,17 @@ void initial_pose_callback(nuturtle_control::srv::InitialPose::Request::SharedPt
     tf_broadcaster_->sendTransform(t);
   }
   // Variables
-  double body_id_;
-  double odom_id_;
-  double wheel_left_;
-  double wheel_right_;
-  double wheelradius_;
+  std::string body_id_;
+  std::string odom_id_;
+  std::string wheel_left_;
+  std::string wheel_right_;
+  double wheel_radius_;
   double track_width_;
   turtlelib::DiffDrive robot_;
-  turtlelib::WheelPos prev_wheel{0.0,0.0};
-  turtlelib::WheelPos new_wheel_pos;
+  turtlelib::WheelPos prev_wheel_{0.0,0.0};
+  turtlelib::WheelPos new_wheel_;
+  turtlelib::Twist2D twistb_;
+  nav_msgs::msg::Odometry odom_;
   tf2::Quaternion q_;
 
   //Pubslishers and Subscribers
