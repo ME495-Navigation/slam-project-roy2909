@@ -52,9 +52,9 @@ add_executable(turtle_control src/turtle_control.cpp)
 ament_target_dependencies(turtle_control rclcpp geometry_msgs std_msgs nuturtlebot_msgs sensor_msgs)
 target_link_libraries(turtle_control turtlelib::turtlelib "${cpp_typesupport_target}")
 
-# add_executable(odometry src/odometry.cpp)
-# ament_target_dependencies(odometry rclcpp std_msgs std_srvs tf2 tf2_ros nav_msgs sensor_msgs)
-# # target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
+add_executable(odometry src/odometry.cpp)
+ament_target_dependencies(odometry rclcpp std_msgs std_srvs tf2 tf2_ros nav_msgs sensor_msgs)
+target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
 # target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
 
 
@@ -62,7 +62,7 @@ target_link_libraries(turtle_control turtlelib::turtlelib "${cpp_typesupport_tar
 
 install(TARGETS
   turtle_control
-  # odometry
+  odometry
   DESTINATION lib/${PROJECT_NAME}
 )
 

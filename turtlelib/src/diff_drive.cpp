@@ -61,6 +61,16 @@ namespace turtlelib
         wheel_position_.left += wheel_pos_new.left;
         wheel_position_.right += wheel_pos_new.right;
     }
+
+    Twist2D DiffDrive::BodyTwist(WheelPos wheel_pos_new)
+    {
+        Twist2D t;
+        t.omega = ((-wheel_pos_new.left + wheel_pos_new.right) / wheel_track_) * wheel_radius_;
+        t.x = ((wheel_pos_new.left + wheel_pos_new.right) / 2) * wheel_radius_;
+        t.y = 0.0;
+        return{t.omega,t.x,t.y};
+    }
+
     turtlelib::WheelPos DiffDrive::InverseKinematics(Twist2D Tb)
     {
         if (Tb.y != 0.0)
