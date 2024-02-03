@@ -63,6 +63,12 @@ public:
       throw std::runtime_error("Parameters not defined!");
     } 
 
+    if(track_width_== 0.0 ||wheel_radius_== 0.0| )
+    {
+      RCLCPP_ERROR_STREAM_ONCE(this->get_logger(), "Parameters not defined " );
+      throw std::runtime_error("Parameters not defined!");
+    } 
+
     robot_= turtlelib::DiffDrive(wheel_radius_, track_width_);
 
     // Publishers
