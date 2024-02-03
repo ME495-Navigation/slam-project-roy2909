@@ -129,9 +129,9 @@ public:
 
     // Publishers
     timestep_publisher_ = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
-    walls_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
+    walls_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
     obstacles_publisher_ =
-      create_publisher<visualization_msgs::msg::MarkerArray>("~/obstacles", 10);
+      this->create_publisher<visualization_msgs::msg::MarkerArray>("~/obstacles", 10);
     // Timer
     timer_ = create_wall_timer(
       std::chrono::milliseconds(1000 / rate_),

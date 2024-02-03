@@ -62,16 +62,16 @@ public:
       throw std::runtime_error("Parameters not defined!");
     } 
 
-    turtle_= turtlelib::DiffDrive(wheel_radius_, track_width_);
+    robot_= turtlelib::DiffDrive(wheel_radius_, track_width_);
     // Publishers
     wheel_cmd_publisher_ = this->create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
     joint_states_publisher_ = create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
     // Subscribers
-    cmd_vel_subscriber_ = create_subscription<geometry_msgs::msg::Twist>(
+    cmd_vel_subscriber_ =this->create_subscription<geometry_msgs::msg::Twist>(
       "cmd_vel", 10, std::bind(
         &turtle_control::cmd_vel_callback, 
         this,_1));
-    sensor_data_subscriber_ = create_subscription<nuturtlebot_msgs::msg::SensorData>(
+    sensor_data_subscriber_ = this->create_subscription<nuturtlebot_msgs::msg::SensorData>(
       "sensor_data", 10, std::bind(
         &turtle_control::sensor_data_callback,
         this,_1));
@@ -79,27 +79,7 @@ public:
       }
 
 private:
-  // Variables
-  double wheel_radius_;
-  double track_width_;
-  double motor_cmd_max_;
-  double motor_cmd_per_rad_sec_;
-  double encoder_ticks_per_rad_;
-  double collision_radius_;
-  double last_time_stamp_ = -1.0;
-  turtlelib::Twist2D twist_;
-  turtlelib::WheelPos wheel_vel_;
-  turtlelib::DiffDrive turtle_;
-  nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
-  sensor_msgs::msg::JointState joint_states_;
 
-  //Pubslishers and Subscribers
-  rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_publisher_;
-  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
-  rclcpp::Subscription<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_subscriber_;
-
- 
     double Max_limit(double wheel_vel)
      { return (wheel_vel > motor_cmd_max_) ? motor_cmd_max_ : ((wheel_vel < -motor_cmd_max_) ? -motor_cmd_max_ : wheel_vel); }
 
@@ -111,7 +91,7 @@ private:
     twist_.y = msg.linear.y;
     twist_.omega = msg.angular.z;
 
-    wheel_vel_= turtle_.InverseKinematics(twist_);
+    wheel_vel_= robot_.InverseKinematics(twist_);
     wheel_cmd_.right_velocity = Max_limit(wheel_cmd_.right_velocity);
     wheel_cmd_.left_velocity = Max_limit(wheel_cmd_.left_velocity);
     wheel_cmd_publisher_->publish(wheel_cmd_);
@@ -136,6 +116,26 @@ private:
     last_time_stamp_ = msg.stamp.sec + msg.stamp.nanosec * 1e-9;
     joint_states_publisher_->publish(joint_states_);
   }
+
+   // Variables
+  double wheel_radius_;
+  double track_width_;
+  double motor_cmd_max_;
+  double motor_cmd_per_rad_sec_;
+  double encoder_ticks_per_rad_;
+  double collision_radius_;
+  double last_time_stamp_ = -1.0;
+  turtlelib::Twist2D twist_;
+  turtlelib::WheelPos wheel_vel_;
+  turtlelib::DiffDrive robot_;
+  nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
+  sensor_msgs::msg::JointState joint_states_;
+
+  //Pubslishers and Subscribers
+  rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_publisher_;
+  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
+  rclcpp::Subscription<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_subscriber_;
 
 };
 
