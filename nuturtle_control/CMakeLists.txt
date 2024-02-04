@@ -25,6 +25,7 @@ find_package(tf2_ros REQUIRED)
 
 set(srv_files
   "srv/InitialPose.srv"
+  "srv/Control.srv"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -57,12 +58,15 @@ ament_target_dependencies(odometry rclcpp std_msgs std_srvs tf2 tf2_ros nav_msgs
 target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
 # target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
 
-
+add_executable(circle src/circle.cpp)
+ament_target_dependencies(circle rclcpp std_msgs std_srvs geometry_msgs)
+target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
 
 
 install(TARGETS
   turtle_control
   odometry
+  circle
   DESTINATION lib/${PROJECT_NAME}
 )
 
