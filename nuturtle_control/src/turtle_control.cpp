@@ -14,11 +14,11 @@
 #include "turtlelib/diff_drive.hpp"
 using std::placeholders::_1;
 
-class turtle_control : public rclcpp::Node
+class Turtle_control : public rclcpp::Node
 {
 public:
-  turtle_control()
-  : Node("turtle_control")
+  Turtle_control()
+  : Node("Turtle_control")
   { // wheel_radius
     auto wheel_radius_desc = rcl_interfaces::msg::ParameterDescriptor{};
     wheel_radius_desc.description = "Radius of wheels (m)";
@@ -69,11 +69,11 @@ public:
     // Subscribers
     cmd_vel_subscriber_ =this->create_subscription<geometry_msgs::msg::Twist>(
       "cmd_vel", 10, std::bind(
-        &turtle_control::cmd_vel_callback, 
+        &Turtle_control::cmd_vel_callback, 
         this,_1));
     sensor_data_subscriber_ = this->create_subscription<nuturtlebot_msgs::msg::SensorData>(
       "sensor_data", 10, std::bind(
-        &turtle_control::sensor_data_callback,
+        &Turtle_control::sensor_data_callback,
         this,_1));
 
       }
@@ -142,7 +142,7 @@ private:
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<turtle_control>());
+  rclcpp::spin(std::make_shared<Turtle_control>());
   rclcpp::shutdown();
   return 0;
 }
