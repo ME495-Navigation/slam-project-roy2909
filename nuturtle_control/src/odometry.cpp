@@ -6,7 +6,7 @@
 ///     \param odom_id (std::string):  odometry frame(odom)
 ///     \param wheel_left (std::string): The name of the left wheel joint
 ///     \param wheel_right (std::string): The name of the right wheel joint
-///     \param wheelradius (double): Radius of wheels (m)
+///     \param wheel_radius (double): Radius of wheels (m)
 ///     \param track_width (double): Distance between wheels (m)
 ///
 /// PUBLISHES:
@@ -45,7 +45,7 @@ using std::placeholders::_2;
 ///  \param odom_id_ (std::string): odometry frame(odom)
 ///  \param wheel_left_ (std::string): The name of the left wheel joint
 ///  \param wheel_right_ (std::string): The name of the right wheel joint
-///  \param wheelradius_ (double): Radius of wheels (m)
+///  \param wheel_radius_ (double): Radius of wheels (m)
 ///  \param track_width_ (double): Distance between wheels (m)
 
 class odometry : public rclcpp::Node
