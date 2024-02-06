@@ -19,7 +19,7 @@ namespace turtlelib
         wheel_position_.left = new_pos.left;
         wheel_position_.right = new_pos.right;
     }
-    turtlelib::RobotConfig DiffDrive::get_config() const
+    turtlelib::RobotConfig DiffDrive::get_config() 
     {
         return q;
     }
