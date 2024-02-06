@@ -14,6 +14,9 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(nuturtlebot_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(turtlelib REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -31,10 +34,10 @@ ament_export_dependencies(rosidl_default_runtime)
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 add_executable(nusim_ex src/nusim.cpp)
-ament_target_dependencies(nusim_ex rclcpp std_msgs std_srvs tf2 tf2_ros visualization_msgs)
+ament_target_dependencies(nusim_ex rclcpp std_msgs std_srvs tf2 tf2_ros visualization_msgs nuturtlebot_msgs sensor_msgs turtlelib)
 
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
-target_link_libraries(nusim_ex "${cpp_typesupport_target}")
+target_link_libraries(nusim_ex turtlelib::turtlelib "${cpp_typesupport_target}")
 
 install(TARGETS
   nusim_ex

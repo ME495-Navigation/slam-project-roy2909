@@ -1,3 +1,25 @@
+/// \file
+/// \brief The node publishes odometry messages and odometry transform
+///
+/// PARAMETERS:
+///     \param body_id (std::string): body frame of the robot
+///     \param odom_id (std::string):  odometry frame(odom)
+///     \param wheel_left (std::string): The name of the left wheel joint
+///     \param wheel_right (std::string): The name of the right wheel joint
+///     \param wheelradius (double): Radius of wheels (m)
+///     \param track_width (double): Distance between wheels (m)
+///
+/// PUBLISHES:
+///     \param ~/odom (nav_msgs::msg::Odometry): Publishes odometry of robot
+///
+/// SUBSCRIBES:
+///     \param /joint_states (sensor_msgs::msg::JointState): Gets the jpint states of robot
+///
+/// SERVERS:
+///     \param /initial_pose (std_srvs::srv::Empty): Sets initial pose of the robot
+///
+/// CLIENTS:
+///     None
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -16,87 +38,95 @@
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-class Odometry : public rclcpp::Node
+/// \brief The node publishes odometry messages and odometry transform
+///        It has an initial pose service to set the initial position of the robot.
+///
+///  \param body_id_ (std::string): body frame of the robot
+///  \param odom_id_ (std::string): odometry frame(odom)
+///  \param wheel_left_ (std::string): The name of the left wheel joint
+///  \param wheel_right_ (std::string): The name of the right wheel joint
+///  \param wheelradius_ (double): Radius of wheels (m)
+///  \param track_width_ (double): Distance between wheels (m)
+
+class odometry : public rclcpp::Node
 {
 public:
-  Odometry()
-  : Node("Odometry")
+  odometry()
+  : Node("odometry")
   { // body_id
     auto body_id_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    body_id_desc.description = "The name of the body frame of the robot";
-    this->declare_parameter("body_id", "blue/base_footprint" , body_id_desc);
+    body_id_desc.description = "body frame of the robot";
+    this->declare_parameter("body_id", "blue/base_footprint", body_id_desc);
     body_id_ = this->get_parameter("body_id").as_string();
     // odom_id
     auto odom_id_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    odom_id_desc.description = "The name of the odometry frame";
-    this->declare_parameter("odom_id","odom", odom_id_desc);
+    odom_id_desc.description = "odometry frame(odom)";
+    this->declare_parameter("odom_id", "odom", odom_id_desc);
     odom_id_ = this->get_parameter("odom_id").as_string();
     // wheel_left
     auto wheel_left_desc = rcl_interfaces::msg::ParameterDescriptor{};
     wheel_left_desc.description = "The name of the left wheel joint";
-    this->declare_parameter("wheel_left","blue/wheel_left_link", wheel_left_desc);
+    this->declare_parameter("wheel_left", "", wheel_left_desc);
     wheel_left_ = this->get_parameter("wheel_left").as_string();
 
     //  wheel_right
-    auto  wheel_right_desc = rcl_interfaces::msg::ParameterDescriptor{};
-     wheel_right_desc.description = "The name of the right wheel joint ";
-    this->declare_parameter("wheel_right", "blue/wheel_right_link", wheel_right_desc);
+    auto wheel_right_desc = rcl_interfaces::msg::ParameterDescriptor{};
+    wheel_right_desc.description = "The name of the right wheel joint ";
+    this->declare_parameter("wheel_right", " ", wheel_right_desc);
     wheel_right_ = this->get_parameter("wheel_right").as_string();
 
     // wheel_radius
     auto wheel_radius_desc = rcl_interfaces::msg::ParameterDescriptor{};
     wheel_radius_desc.description = "Radius of wheels (m)";
-    this->declare_parameter("wheel_radius", 0.0 , wheel_radius_desc);
+    this->declare_parameter("wheel_radius", -1.0, wheel_radius_desc);
     wheel_radius_ = this->get_parameter("wheel_radius").as_double();
 
     // track_width
     auto track_width_desc = rcl_interfaces::msg::ParameterDescriptor{};
     track_width_desc.description = "Distance between wheels (m)";
-    this->declare_parameter("track_width", 0.0, track_width_desc);
+    this->declare_parameter("track_width", -1.0, track_width_desc);
     track_width_ = this->get_parameter("track_width").as_double();
 
-    
-    if(body_id_==""||odom_id_=="" || wheel_left_==""||
-      wheel_right_=="" )
-    {
-      RCLCPP_ERROR_STREAM_ONCE(this->get_logger(), "Parameters not defined " );
-      throw std::runtime_error("Parameters not defined!");
-    } 
 
-    if(track_width_== 0.0 ||wheel_radius_== 0.0 )
+    if (body_id_ == "" || odom_id_ == "" || wheel_left_ == "" ||
+      wheel_right_ == "")
     {
-      RCLCPP_ERROR_STREAM_ONCE(this->get_logger(), "Parameters not defined " );
+      RCLCPP_ERROR_STREAM_ONCE(this->get_logger(), "Parameters not defined ");
       throw std::runtime_error("Parameters not defined!");
-    } 
+    }
 
-    robot_= turtlelib::DiffDrive(wheel_radius_, track_width_);
+    if (track_width_ == -1.0 || wheel_radius_ == -1.0) {
+      RCLCPP_ERROR_STREAM_ONCE(this->get_logger(), "Parameters not defined ");
+      throw std::runtime_error("Parameters not defined!");
+    }
+
+    robot_ = turtlelib::DiffDrive(wheel_radius_, track_width_);
 
     // Publishers
     odometry_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", 10);
 
     tf_broadcaster_ =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
-    
     // Subscribers
     joint_state_subscriber_ = this->create_subscription<sensor_msgs::msg::JointState>(
       "joint_states", 10, std::bind(
-        &Odometry::odometry_callback, 
-        this,_1));
+        &odometry::odometry_callback,
+        this, _1));
     //Service
     initial_pose_server_ = this->create_service<nuturtle_control::srv::InitialPose>(
       "~/initial_pose",
-      std::bind(&Odometry::initial_pose_callback, this, _1, _2));
-    
-      }
+      std::bind(&odometry::initial_pose_callback, this, _1, _2));
+
+  }
 
 private:
-
-void odometry_callback(const sensor_msgs::msg::JointState &msg)
-{
-    new_wheel_.left=msg.position[0] -prev_wheel_.left;
-    new_wheel_.right=msg.position[1] - prev_wheel_.right;
+  /// \brief Publishes the odometry of robot
+  void odometry_callback(const sensor_msgs::msg::JointState & msg)
+  {
+    new_wheel_.left = msg.position[0] - prev_wheel_.left;
+    new_wheel_.right = msg.position[1] - prev_wheel_.right;
     robot_.ForwardKinematics(new_wheel_);
-    twistb_=robot_.BodyTwist(new_wheel_);
+    twistb_ = robot_.BodyTwist(new_wheel_);
     q_.setRPY(0, 0, robot_.get_config().theta);
     odom_.header.frame_id = odom_id_;
     odom_.child_frame_id = body_id_;
@@ -113,19 +143,19 @@ void odometry_callback(const sensor_msgs::msg::JointState &msg)
     odom_.twist.twist.angular.z = twistb_.omega;
     odometry_publisher_->publish(odom_);
     broadcast_odom_transform();
-    prev_wheel_.left=msg.position[0];
-    prev_wheel_.right=msg.position[1];
-
-
-
-}
-
-void initial_pose_callback(nuturtle_control::srv::InitialPose::Request::SharedPtr request,
+    prev_wheel_.left = msg.position[0];
+    prev_wheel_.right = msg.position[1];
+  }
+  /// \brief sets inital pose of robot
+  void initial_pose_callback(
+    nuturtle_control::srv::InitialPose::Request::SharedPtr request,
     nuturtle_control::srv::InitialPose::Response::SharedPtr)
-    {
-        robot_= turtlelib::DiffDrive(wheel_radius_,track_width_,{0.0,0.0},{request->x,request->y,request->theta});
-    }
-
+  {
+    robot_ = turtlelib::DiffDrive(
+      wheel_radius_, track_width_, {0.0, 0.0}, {request->x, request->y,
+        request->theta});
+  }
+  /// \brief Broadcasts odometry transform
   void broadcast_odom_transform()
   {
     geometry_msgs::msg::TransformStamped t;
@@ -152,7 +182,7 @@ void initial_pose_callback(nuturtle_control::srv::InitialPose::Request::SharedPt
   double wheel_radius_;
   double track_width_;
   turtlelib::DiffDrive robot_;
-  turtlelib::WheelPos prev_wheel_{0.0,0.0};
+  turtlelib::WheelPos prev_wheel_{0.0, 0.0};
   turtlelib::WheelPos new_wheel_;
   turtlelib::Twist2D twistb_;
   nav_msgs::msg::Odometry odom_;
@@ -164,11 +194,11 @@ void initial_pose_callback(nuturtle_control::srv::InitialPose::Request::SharedPt
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscriber_;
   rclcpp::Service<nuturtle_control::srv::InitialPose>::SharedPtr initial_pose_server_;
 };
-
+/// \brief main funtion of node
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<Odometry>());
+  rclcpp::spin(std::make_shared<odometry>());
   rclcpp::shutdown();
   return 0;
 }
