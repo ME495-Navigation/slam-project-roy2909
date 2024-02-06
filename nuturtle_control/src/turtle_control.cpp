@@ -41,7 +41,7 @@ using std::placeholders::_1;
 ///        follow the specified twist. It also subscribes to sensor_data and publishes joinr_states
 ///        and velocity.
 ///
-///  \param wheelradius_ (double): Radius of wheels (m)
+///  \param wheel_radius_ (double): Radius of wheels (m)
 ///  \param track_width_ (double): Distance between wheels (m)
 ///  \param motor_cmd_max_ (int): The motor command maximum value
 ///  \param motor_cmd_per_rad_sec_ (double): Each motor command unit (mcu) is 0.024 (rad/sec)
