@@ -68,7 +68,7 @@ TEST_CASE("InverseKinematics(), arc of circle", "[diff_drive]") // Rahul Roy
     REQUIRE_THAT(r.right, Catch::Matchers::WithinAbs(-8.0, 1.0e-5));
 }
 
-TEST_CASE("InverseKinematics(), Impossible-to-folllow twist", "[diff_drive]") // Rahul Roy
+TEST_CASE("InverseKinematics(), Impossible-to-follow twist", "[diff_drive]") // Rahul Roy
 {
     turtlelib::DiffDrive d(1.0, 6.0);
     turtlelib::Twist2D tw{0, 0, 2};
