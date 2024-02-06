@@ -13,10 +13,10 @@
 ///     \param ~/odom (nav_msgs::msg::Odometry): Publishes odometry of robot
 ///
 /// SUBSCRIBES:
-///     \param /joint_states (sensor_msgs::msg::JointState): Gets the jpint states of robot
+///     \param ~/joint_states (sensor_msgs::msg::JointState): Gets the jpint states of robot
 ///
 /// SERVERS:
-///     \param /initial_pose (std_srvs::srv::Empty): Sets initial pose of the robot
+///     \param ~/initial_pose (std_srvs::srv::Empty): Sets initial pose of the robot
 ///
 /// CLIENTS:
 ///     None
