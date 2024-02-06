@@ -70,8 +70,9 @@ public:
   Nusim()
   : Node("Nusim")
   { // rate
-    auto rate_desc = rcl_interfaces::msg::ParameterDescriptor{};
+      auto rate_desc = rcl_interfaces::msg::ParameterDescriptor{}; // const
     rate_desc.description = "Timer Frequency (Hz)";
+    // all uses of this-> here are unneeded
     this->declare_parameter("rate", 200, rate_desc);
     rate_ = this->get_parameter("rate").as_int();
     // x0
@@ -150,8 +151,8 @@ public:
     x_pos_ = {
       0.0,
       0.0,
-      arena_x_length_ / 2 + thickness_ / 2,
-      -arena_x_length_ / 2 - thickness_ / 2,
+      arena_x_length_ / 2 + thickness_ / 2, // 2.0
+      -arena_x_length_ / 2 - thickness_ / 2, // 2.0
     };
     // Y coordinates of walls
     y_pos_ = {
@@ -232,7 +233,7 @@ private:
   {
     if (obstacles_x_.size() != obstacles_y_.size()) {
       RCLCPP_ERROR(this->get_logger(), "Lengths of obstacles/x and obstacles/y must be the same.");
-      rclcpp::shutdown();
+      rclcpp::shutdown(); // throw an exception
       return;
     }
     for (size_t i = 0; i < obstacles_x_.size(); i++) {

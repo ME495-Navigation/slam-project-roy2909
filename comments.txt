@@ -1,0 +1,1 @@
+There is a problem with your svg drawing. The point should be in the same physical location regardless of its coordinates since it is a single geometric entity

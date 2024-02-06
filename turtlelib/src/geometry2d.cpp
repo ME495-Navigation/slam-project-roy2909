@@ -54,7 +54,7 @@ namespace turtlelib
     double normalize_angle(double rad)
     {
 // ############################## Begin_Citation [2] ##############################
-        double normalizedAngle = rad - (ceil((rad + PI) / (2 * PI)) - 1) * 2 * PI;
+        double normalizedAngle = rad - (ceil((rad + PI) / (2 * PI)) - 1) * 2 * PI; // 2.0, 1.0. no need for temporary just return the result
         return normalizedAngle;
 // ############################## Begin_Citation [2] ##############################
     }
@@ -64,13 +64,13 @@ namespace turtlelib
         Vector2D result;
         result.x = head.x - tail.x;
         result.y = head.y - tail.y;
-        return result;
+        return result; // return {head.x - tail.x, head.y - tail.y}
     }
 
     Vector2D normalize_vector(Vector2D v)
     {
-        auto v_x2 = pow(v.x, 2);
-        auto v_y2 = pow(v.y, 2);
+        auto v_x2 = pow(v.x, 2); // const
+        auto v_y2 = pow(v.y, 2); // const
         const auto mag = sqrt((v_x2 + v_y2));
         return {v.x / mag, v.y / mag};
     }
@@ -80,7 +80,7 @@ namespace turtlelib
         Point2D result;
         result.x = tail.x + disp.x;
         result.y = tail.y + disp.y;
-        return result;
+        return result; // return{}
     }
 
 }
