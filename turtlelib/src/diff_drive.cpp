@@ -77,7 +77,7 @@ namespace turtlelib
         {
             throw std::logic_error("Twist causes slipping");
         }
-
+        //equation 1 and 2 from kinematics pdf
         return {((-(wheel_track_ / 2) * Tb.omega + Tb.x) / wheel_radius_), (((wheel_track_ / 2) * Tb.omega + Tb.x) / wheel_radius_)};
     }
 }
