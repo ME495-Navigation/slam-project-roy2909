@@ -14,12 +14,6 @@
         description="The name of the right wheel joint" />
 
 
-    <node pkg="nuturtle_control" exec="circle" name="circle"
-        if="$(eval '\'$(var cmd_src)\' == \'circle\'')">
-        <param name="frequency" value="100" />
-        <remap from="joint_states" to="blue/joint_states" />
-    </node>
-
     <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control"
         if="$(eval '\'$(var robot)\' != \'localhost\'')">
         <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml" />
@@ -58,6 +52,14 @@
         <param name="wheel_right" value="blue/wheel_right_joint" />
         <remap from="joint_states" to="blue/joint_states" />
     </node>
+
+
+    <node pkg="nuturtle_control" exec="circle" name="circle"
+        if="$(eval '\'$(var cmd_src)\' == \'circle\'')">
+        <param name="frequency" value="100" />
+
+    </node>
+
 
     <node pkg="rviz2" exec="rviz2" name="rviz2"
         args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"
