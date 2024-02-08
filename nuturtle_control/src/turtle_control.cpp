@@ -128,15 +128,19 @@ private:
       static_cast<double>(msg->linear.x),
       static_cast<double>(msg->linear.y)
     };
+    RCLCPP_ERROR(this->get_logger(),"[cmd_vel] Angular: %f    x: %f", tw_.omega, tw_.x);
+  
+  
 
     // Calculate velocities needed
     wheel_vels_ = diff_drive.InverseKinematics(tw_);
+    RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", wheel_vels_.left, wheel_vels_.right);
 
     // NOTE: divide angular velocity by motor commands per radian-second
     // to get the motor command units
     wheel_vels_.left = static_cast<int>(wheel_vels_.left / motor_cmd_rad_sec_);
     wheel_vels_.right = static_cast<int>(wheel_vels_.right / motor_cmd_rad_sec_);
-
+    RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %d    Right vel: %d", wheel_vels_.left, wheel_vels_.right);
     // Clip motor command units to motor_cmd_max
     if (wheel_vels_.left > motor_cmd_max_) {
       wheel_vels_.left = motor_cmd_max_;
@@ -153,6 +157,8 @@ private:
     // Update message variable for publishing in main timer
     wheel_cmds_.left_velocity = wheel_vels_.left;
     wheel_cmds_.right_velocity = wheel_vels_.right;
+  RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmds_.left_velocity, wheel_cmds_.right_velocity);
+
   }
 
   void sensor_data_sub_cb_(const std::shared_ptr<nuturtlebot_msgs::msg::SensorData> msg)
