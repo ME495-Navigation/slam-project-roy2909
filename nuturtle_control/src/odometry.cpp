@@ -123,8 +123,8 @@ private:
   /// \brief Publishes the odometry of robot
   void odometry_callback(const sensor_msgs::msg::JointState & msg)
   {
-    new_wheel_.left = msg.position[0] - prev_wheel_.left;
-    new_wheel_.right = msg.position[1] - prev_wheel_.right;
+    new_wheel_.left = msg.position.at(0) - prev_wheel_.left;
+    new_wheel_.right = msg.position.at(1) - prev_wheel_.right;
     robot_.ForwardKinematics(new_wheel_);
     twistb_ = robot_.BodyTwist(new_wheel_);
     q_.setRPY(0, 0, robot_.get_config().theta);
@@ -143,8 +143,8 @@ private:
     odom_.twist.twist.angular.z = twistb_.omega;
     odometry_publisher_->publish(odom_);
     broadcast_odom_transform();
-    prev_wheel_.left = msg.position[0];
-    prev_wheel_.right = msg.position[1];
+    prev_wheel_.left = msg.position.at(0);
+    prev_wheel_.right = msg.position.at(1);
   }
   /// \brief sets inital pose of robot
   void initial_pose_callback(

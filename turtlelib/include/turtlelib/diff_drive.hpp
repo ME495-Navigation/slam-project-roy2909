@@ -69,7 +69,7 @@ namespace turtlelib
 
         /// \brief get robot configuration
         /// \return robot configuration
-        RobotConfig get_config() ;
+        RobotConfig get_config() const;
 
         /// \brief set robot configuration
         /// \param new_config new configuration
