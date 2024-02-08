@@ -19,7 +19,7 @@ namespace turtlelib
         wheel_position_.left = new_pos.left;
         wheel_position_.right = new_pos.right;
     }
-    turtlelib::RobotConfig DiffDrive::get_config() 
+    turtlelib::RobotConfig DiffDrive::get_config() const
     {
         return q;
     }
@@ -31,12 +31,12 @@ namespace turtlelib
     }
     void DiffDrive::ForwardKinematics(WheelPos wheel_pos_new)
     {
-        // Twist=H†(0)*deltheta(∆θL, ∆θR)
+        // Twist=H†(0)*deltheta(∆θL, ∆θR) eq3
         Twist2D t;
         t.omega = ((-wheel_pos_new.left + wheel_pos_new.right) / wheel_track_) * wheel_radius_;
         t.x = ((wheel_pos_new.left + wheel_pos_new.right) / 2) * wheel_radius_;
         t.y = 0.0;
-        // New frame relative to initial frame
+        // New frame relative to initial frame eq4
         Transform2D Tbb_prime = integrate_twist(t);
 
         // Extract change in coordinaes relative to body frame
@@ -45,18 +45,18 @@ namespace turtlelib
         double dqb_x = Tbb_prime.translation().x;
         double dqb_y = Tbb_prime.translation().y;
 
-        // Transform dqb in body frame to dq in fixed frame
+        // Transform dqb in body frame to dq in fixed frame eq5
 
         double dq_theta = dqb_theta;
         double dq_x = std::cos(q.theta) * dqb_x - std::sin(q.theta) * dqb_y;
         double dq_y = std::sin(q.theta) * dqb_x + std::cos(q.theta) * dqb_y;
 
-        // Update robot config
+        // Update robot config eq6
 
-        q.theta += dq_theta;
+        q.theta = dq_theta;
         q.theta = normalize_angle(q.theta);
-        q.x += dq_x;
-        q.y += dq_y;
+        q.x = dq_x;
+        q.y = dq_y;
 
         wheel_position_.left += wheel_pos_new.left;
         wheel_position_.right += wheel_pos_new.right;
