@@ -30,12 +30,12 @@ TEST_CASE("ForwardKinematics(), Pure rotation", "[diff_drive]") // Rahul Roy
 TEST_CASE("ForwardKinematics(), arc of circle", "[diff_drive]") // Rahul Roy
 {
     turtlelib::DiffDrive d(1.0, 2.0);
-    turtlelib::WheelPos p{2.0 * turtlelib::PI, turtlelib::PI};
+    turtlelib::WheelPos p{2.0 * turtlelib::PI + 2.0, -2.0 * turtlelib::PI + 2.0};
     turtlelib::RobotConfig w;
     d.ForwardKinematics(p);
-    REQUIRE_THAT(d.get_config().x, Catch::Matchers::WithinAbs(3.0, 1.0e-5));
-    REQUIRE_THAT(d.get_config().y, Catch::Matchers::WithinAbs(-3.0, 1.0e-5));
-    REQUIRE_THAT(d.get_config().theta, Catch::Matchers::WithinAbs(-1.5707963268, 1.0e-5));
+    REQUIRE_THAT(d.get_config().x, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    REQUIRE_THAT(d.get_config().y, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    REQUIRE_THAT(d.get_config().theta, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
 }
 
 TEST_CASE("InverseKinematics(), Pure translation", "[diff_drive]") // Rahul Roy

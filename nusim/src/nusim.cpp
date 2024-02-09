@@ -264,7 +264,7 @@ private:
     wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_;
     wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_;
     //  RCLCPP_ERROR(this->get_logger(),"Am i entering wheel left, %f", wheel_vel_.left);
-    //  RCLCPP_ERROR(this->get_logger(),"wheek cmd from nusim, %f", msg.left_velocity);
+    //  RCLCPP_ERROR(this->get_logger(),"wheek cmd from nusim, %f", wheel_vel_.right);
   }
 
   /// \brief Resets the simulation to initial configuration

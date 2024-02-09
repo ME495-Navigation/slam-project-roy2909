@@ -105,18 +105,22 @@ public:
       std::bind(&odometry::initial_pose_callback, this, _1, _2));
     odom_.header.frame_id = odom_id_;
     odom_.child_frame_id = body_id_;
-     Q=robot_.get_config();
+    //  Q=robot_.get_config();
   }
 
 private:
   /// \brief Publishes the odometry of robot
-  void odometry_callback(const sensor_msgs::msg::JointState & msg)
+  void odometry_callback(const sensor_msgs::msg::JointState &msg)
   {
 
     odom_.header.stamp = get_clock()->now();
+    // RCLCPP_ERROR(this->get_logger(),"[Inirial joint state update] js1: %d   ", msg.position.at(0));
     new_wheel_.left = msg.position.at(0) - prev_wheel_.left;
+    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d   ", new_wheel_.left);
+
     new_wheel_.right = msg.position.at(1) - prev_wheel_.right;
     prev_wheel_.left=msg.position.at(0);
+    // RCLCPP_ERROR(this->get_logger(),"[Previous wheel] prev_wheel: %d   ", prev_wheel_.left);
     prev_wheel_.right=msg.position.at(1);
     robot_.ForwardKinematics(new_wheel_);
     Q =robot_.get_config();

@@ -12,7 +12,7 @@
 
 using namespace std::chrono_literals;
 geometry_msgs::msg::Twist twist = geometry_msgs::msg::Twist();
-sensor_msgs::msg::JointState joint_state = sensor_msgs::msg::JointState();
+sensor_msgs::msg::JointState joint_state ;
 
 double left_wheel_test;
 double right_wheel_test;
@@ -23,11 +23,11 @@ void test_callback(const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg)
   right_wheel_test = msg->right_velocity;
 }
 
-void senor_callback(const sensor_msgs::msg::JointState & msg)
+void senor_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
-  joint_state.name = msg.name;
-  joint_state.position = msg.position;
-  joint_state.velocity = msg.velocity;
+  joint_state.name = msg->name;
+  joint_state.position = msg->position;
+  joint_state.velocity = msg->velocity;
 }
 
 geometry_msgs::msg::Twist twist1 = geometry_msgs::msg::Twist();
@@ -91,20 +91,20 @@ nuturtlebot_msgs::msg::SensorData senor1 = nuturtlebot_msgs::msg::SensorData();
 TEST_CASE("Joint States", "[sesnor data]")
 {
   auto node = rclcpp::Node::make_shared("turtle_control");
-  auto pub = node->create_publisher<nuturtlebot_msgs::msg::SensorData>("sensor_data", 10);
-  senor.left_encoder = 60.0;
-  senor.right_encoder = 46.0;
+  auto pub = node->create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
+  senor.left_encoder = 1000.0;
+  senor.right_encoder = 1000.0;
   // senor1.left_encoder = 50.0;
   // senor1.right_encoder = 86.0;
   auto sub = node->create_subscription<sensor_msgs::msg::JointState>(
-    "joint_states", 10, &senor_callback);
+    "red/joint_states", 10, &senor_callback);
   rclcpp::Time start_time = rclcpp::Clock().now();
   while (
     rclcpp::ok() &&
     ((rclcpp::Clock().now() - start_time) < 1s))
-  {
+  { pub->publish(senor);
     rclcpp::spin_some(node);
-    pub->publish(senor);
+   
 
     // pub->publish(senor1);
   }

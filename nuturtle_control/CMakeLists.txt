@@ -103,6 +103,7 @@ install(DIRECTORY
         launch
         srv
         test
+        config
         DESTINATION share/${PROJECT_NAME})
 
 ament_package()
