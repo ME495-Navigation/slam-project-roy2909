@@ -132,9 +132,9 @@ public:
       std::chrono::milliseconds(1000 / rate_),
       std::bind(&Nusim::timer_callback, this));
 
-    x_ = x0_;
-    y_ = y0_;
-    theta_ = theta0_;
+    x_ = 0.0;
+    y_ = 0.0;
+    theta_ = 0.0;
 
     thickness_ = 0.10;
     height_ = 0.25;
@@ -172,6 +172,8 @@ public:
     wall_marker();
     // Obstacles
     obstacle_marker();
+    // update_wheel_positions();
+    // update_robot_position();
   }
 
 private:
@@ -217,10 +219,10 @@ private:
   void update_robot_position()
   {
     // // Do forward kinematics
-    // turtlelib::WheelPos delta_wheels;
-    // delta_wheels.left = updated_wheel_pos_.left - prev_wheel_pos_.left;
-    // delta_wheels.right = updated_wheel_pos_.right - prev_wheel_pos_.right;
-    robot_.ForwardKinematics(updated_wheel_pos_);
+    turtlelib::WheelPos delta_wheels;
+    delta_wheels.left = updated_wheel_pos_.left - prev_wheel_pos_.left;
+    delta_wheels.right = updated_wheel_pos_.right - prev_wheel_pos_.right;
+    robot_.ForwardKinematics(delta_wheels);
 
     // Extract new positions
     x_ = robot_.get_config().x;
@@ -230,7 +232,8 @@ private:
 
     // RCLCPP_ERROR(this->get_logger(),"x = %f", x_);
     // printf("Updated robot position: x = %f, y = %f, theta = %f\n", x_, y_, theta_);
-
+   prev_wheel_pos_.left = updated_wheel_pos_.left;
+   prev_wheel_pos_.right = updated_wheel_pos_.right;
 
   }
 
@@ -250,17 +253,19 @@ private:
     sensor_data_publisher_->publish(sensor_data_msg_);
 
     // Reset previous wheel positions
-    prev_wheel_pos_.left = updated_wheel_pos_.left;
-    prev_wheel_pos_.right = updated_wheel_pos_.right;
+    // prev_wheel_pos_.left = updated_wheel_pos_.left;
+    // prev_wheel_pos_.right = updated_wheel_pos_.right;
 
   }
 
   void wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
 
-    // RCLCPP_ERROR(this->get_logger(),"Am i entering");
+    
     wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_;
     wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_;
+     RCLCPP_ERROR(this->get_logger(),"Am i entering wheel left, %f", wheel_vel_.left);
+     RCLCPP_ERROR(this->get_logger(),"wheek cmd from nusim, %f", msg.left_velocity);
   }
 
   /// \brief Resets the simulation to initial configuration
