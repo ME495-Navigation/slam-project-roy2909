@@ -32,15 +32,20 @@
 
     <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
         if="$(eval '\'$(var robot)\' == \'nusim\'')">
+
         <arg name="rviz"
             value="$(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz)" />
     </include>
+    <node pkg="rviz2" exec="rviz2" name="rviz2"
+        args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"/>
+       
+
     
     <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py"
         if="$(eval '\'$(var robot)\' == \'nusim\'')">
         <arg name="color" value="blue" />
         <arg name="use_rviz" value="false" />
-        <arg name="use_jsp" value="true" />
+        <arg name="use_jsp" value="false" />
     </include>
 
 
@@ -48,8 +53,8 @@
         <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml" />
         <param name="body_id" value="$(var body_id)" />
         <param name="odom_id" value="$(var odom_id)" />
-        <param name="wheel_left" value="blue/wheel_left_joint" />
-        <param name="wheel_right" value="blue/wheel_right_joint" />
+        <param name="wheel_left" value="wheel_left_joint" />
+        <param name="wheel_right" value="wheel_right_joint" />
         <remap from="joint_states" to="blue/joint_states" />
     </node>
 

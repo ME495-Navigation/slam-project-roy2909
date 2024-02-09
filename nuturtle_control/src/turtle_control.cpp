@@ -57,29 +57,29 @@ public:
   { // wheel_radius
     auto wheel_radius_desc = rcl_interfaces::msg::ParameterDescriptor{};
     wheel_radius_desc.description = "Radius of wheels (m)";
-    declare_parameter("wheel_radius", -1.0, wheel_radius_desc);
+    declare_parameter("wheel_radius", 0.033, wheel_radius_desc);
     wheel_radius_ = get_parameter("wheel_radius").as_double();
     // track_width
     auto track_width_desc = rcl_interfaces::msg::ParameterDescriptor{};
     track_width_desc.description = "Distance between wheels (m)";
-    declare_parameter("track_width", -1.0, track_width_desc);
+    declare_parameter("track_width", 0.16, track_width_desc);
     track_width_ = get_parameter("track_width").as_double();
     // motor_cmd_max
     auto motor_cmd_max_desc = rcl_interfaces::msg::ParameterDescriptor{};
     motor_cmd_max_desc.description = "The motor command maximum value";
-    declare_parameter("motor_cmd_max", -1, motor_cmd_max_desc);
+    declare_parameter("motor_cmd_max", 265, motor_cmd_max_desc);
     motor_cmd_max_ = get_parameter("motor_cmd_max").as_int();
 
     //  motor_cmd_per_rad_sec
     auto motor_cmd_per_rad_sec_desc = rcl_interfaces::msg::ParameterDescriptor{};
     motor_cmd_per_rad_sec_desc.description = "Each motor command unit (mcu) is 0.024 (rad/sec) ";
-    declare_parameter("motor_cmd_per_rad_sec", -1.0, motor_cmd_per_rad_sec_desc);
+    declare_parameter("motor_cmd_per_rad_sec", 0.024, motor_cmd_per_rad_sec_desc);
     motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").as_double();
 
     // encoder_ticks_per_rad
     auto encoder_ticks_per_rad_desc = rcl_interfaces::msg::ParameterDescriptor{};
     encoder_ticks_per_rad_desc.description = "The number of encoder ticks per radian (ticks/rad)";
-    declare_parameter("encoder_ticks_per_rad", -1.0, encoder_ticks_per_rad_desc);
+    declare_parameter("encoder_ticks_per_rad", 651.898646904, encoder_ticks_per_rad_desc);
     encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").as_double();
 
     // collision_radius
@@ -99,11 +99,8 @@ public:
       RCLCPP_ERROR_STREAM_ONCE(this->get_logger(), "Parameters not defined ");
       throw std::runtime_error("Parameters not defined!");
     }
-    joint_states_.name = {"wheel_left_link", "wheel_right_link"};
-    joint_states_.position.push_back(0);
-    joint_states_.position.push_back(0);
-    joint_states_.velocity.push_back(0);
-    joint_states_.velocity.push_back(0);
+    
+    
 
 
     // Publishers
@@ -127,6 +124,10 @@ public:
     robot_=turtlelib::DiffDrive{wheel_radius_,track_width_};
     duration = 0.0;
     prev_time_step_ = this->now();
+    joint_states_.name={"wheel_left_joint","wheel_right_joint"};
+    joint_states_.position={0.0,0.0};
+    joint_states_.velocity={0.0,0.0};
+    
   }
 
 private:
@@ -141,6 +142,7 @@ private:
   sensor_msgs::msg::JointState joint_states_;
   double duration;
   rclcpp::Time prev_time_step_;
+  double count=1.0;
 
   // Publishers
   rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
@@ -166,13 +168,13 @@ private:
            motor_cmd_max_) ? motor_cmd_max_ : ((wheel_vel <
            -motor_cmd_max_) ? -motor_cmd_max_ : wheel_vel);
   }
-  void cmd_vel_callback(const std::shared_ptr<geometry_msgs::msg::Twist> msg)
+  void cmd_vel_callback(const geometry_msgs::msg::Twist &msg)
   {
 
     twist_ = {
-      static_cast<double>(msg->angular.z),
-      static_cast<double>(msg->linear.x),
-      static_cast<double>(msg->linear.y)
+      static_cast<double>(msg.angular.z),
+      static_cast<double>(msg.linear.x),
+      static_cast<double>(msg.linear.y)
     };
     // RCLCPP_ERROR(this->get_logger(),"[cmd_vel] Angular: %f    x: %f", twist_.omega, twist_.x);
 
@@ -181,31 +183,33 @@ private:
 
     vels_.left = static_cast<int>(vels_.left / motor_cmd_per_rad_sec_);
     vels_.right = static_cast<int>(vels_.right / motor_cmd_per_rad_sec_);
-    // RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %d    Right vel: %d", vels_.left, vels_.right);
+    // RCLCPP_ERROR(this->get_logger(),"[after motor] motor: %f ", motor_cmd_per_rad_sec_);
+    // RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %f    Right vel: %f", vels_.left, vels_.right);
 
     vels_.left = Max_limit(vels_.left);
     vels_.right = Max_limit(vels_.right);
     wheel_cmd_.left_velocity = vels_.left;
     wheel_cmd_.right_velocity = vels_.right;
     // wheel_cmd_publisher_->publish(wheel_cmd_);
-    RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
+    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
   }
 
-  void sensor_data_callback_(const std::shared_ptr<nuturtlebot_msgs::msg::SensorData> msg)
+  void sensor_data_callback_(const nuturtlebot_msgs::msg::SensorData &msg)
   {
-    
     duration = (this->now() - prev_time_step_).seconds();
-    joint_states_.velocity = {
-      (msg->left_encoder / encoder_ticks_per_rad_ - joint_states_.position.at(0)) / duration,
-      (msg->right_encoder / encoder_ticks_per_rad_ - joint_states_.position.at(1)) / duration
-    };
+    RCLCPP_ERROR(this->get_logger(),"timer %f",duration);
+   
     joint_states_.position = {
-      msg->left_encoder / encoder_ticks_per_rad_,
-      msg->right_encoder / encoder_ticks_per_rad_
+      msg.left_encoder / encoder_ticks_per_rad_,
+      msg.right_encoder / encoder_ticks_per_rad_
+    };
+     joint_states_.velocity = {
+      (msg.left_encoder / encoder_ticks_per_rad_) / duration,
+      (msg.right_encoder / encoder_ticks_per_rad_) / duration
     };
     prev_time_step_ = this->now();
-  }
+}
 };
 
 int main(int argc, char * argv[])
