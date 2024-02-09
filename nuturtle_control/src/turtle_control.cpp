@@ -117,7 +117,7 @@ public:
         std::placeholders::_1));
 
     sensor_data_subscriber_ = create_subscription<nuturtlebot_msgs::msg::SensorData>(
-      "sensor_data", 10, std::bind(
+      "red/sensor_data", 10, std::bind(
         &Turtle_control::sensor_data_callback_, this,
         std::placeholders::_1));
 
@@ -187,7 +187,7 @@ private:
     vels_.right = Max_limit(vels_.right);
     wheel_cmd_.left_velocity = vels_.left;
     wheel_cmd_.right_velocity = vels_.right;
-    wheel_cmd_publisher_->publish(wheel_cmd_);
+    // wheel_cmd_publisher_->publish(wheel_cmd_);
     RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
   }

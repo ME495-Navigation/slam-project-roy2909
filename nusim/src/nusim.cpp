@@ -132,9 +132,9 @@ public:
       std::chrono::milliseconds(1000 / rate_),
       std::bind(&Nusim::timer_callback, this));
 
-    x_ = 0.0;
-    y_ = 0.0;
-    theta_ = 0.0;
+    x_ = x0_;
+    y_ = y0_;
+    theta_ = theta0_;
 
     thickness_ = 0.10;
     height_ = 0.25;
@@ -218,7 +218,6 @@ private:
 
   void update_robot_position()
   {
-    // // Do forward kinematics
     turtlelib::WheelPos delta_wheels;
     delta_wheels.left = updated_wheel_pos_.left - prev_wheel_pos_.left;
     delta_wheels.right = updated_wheel_pos_.right - prev_wheel_pos_.right;
@@ -264,8 +263,8 @@ private:
     
     wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_;
     wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_;
-     RCLCPP_ERROR(this->get_logger(),"Am i entering wheel left, %f", wheel_vel_.left);
-     RCLCPP_ERROR(this->get_logger(),"wheek cmd from nusim, %f", msg.left_velocity);
+    //  RCLCPP_ERROR(this->get_logger(),"Am i entering wheel left, %f", wheel_vel_.left);
+    //  RCLCPP_ERROR(this->get_logger(),"wheek cmd from nusim, %f", msg.left_velocity);
   }
 
   /// \brief Resets the simulation to initial configuration
