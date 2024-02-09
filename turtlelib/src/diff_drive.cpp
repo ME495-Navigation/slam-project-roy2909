@@ -31,36 +31,50 @@ namespace turtlelib
     }
     void DiffDrive::ForwardKinematics(WheelPos wheel_pos_new)
     {
-        // Twist=H†(0)*deltheta(∆θL, ∆θR) eq3
-        Twist2D t;
-        t.omega = ((-wheel_pos_new.left + wheel_pos_new.right) / wheel_track_) * wheel_radius_;
-        t.x = ((wheel_pos_new.left + wheel_pos_new.right) / 2) * wheel_radius_;
-        t.y = 0.0;
-        // New frame relative to initial frame eq4
-        Transform2D Tbb_prime = integrate_twist(t);
+        
+        // [1] Get the body twist Vb
 
-        // Extract change in coordinaes relative to body frame
+        Twist2D Vb;
+        Vb.omega = ((wheel_radius_ / (2.0 * (wheel_track_/2.0))) * (wheel_pos_new.right - wheel_pos_new.left));
+        Vb.x = (wheel_radius_ / 2.0) * (wheel_pos_new.left + wheel_pos_new.right);
+        // Vb.y = 0.0;
 
-        double dqb_theta = Tbb_prime.rotation();
-        double dqb_x = Tbb_prime.translation().x;
-        double dqb_y = Tbb_prime.translation().y;
+        // Vb.omega = ((-delta_wheels.phi_l + delta_wheels.phi_r) / wheel_track) * wheel_radius;
+        // Vb.x = ((delta_wheels.phi_l + delta_wheels.phi_r) / 2.0) * wheel_radius;
 
-        // Transform dqb in body frame to dq in fixed frame eq5
 
-        double dq_theta = dqb_theta;
-        double dq_x = std::cos(q.theta) * dqb_x - std::sin(q.theta) * dqb_y;
-        double dq_y = std::sin(q.theta) * dqb_x + std::cos(q.theta) * dqb_y;
+        // [2] Find the body transformation from the twist
+        // This expresses the new chassis frame, b_p, 
+        // relative to the initial frame, b.
 
-        // Update robot config eq6
+        Transform2D T_bb_p = integrate_twist(Vb);
 
-        q.theta += dq_theta;
+        // Extract the transformation values from
+        // b to b_p
+
+        double d_qb_p_theta = T_bb_p.rotation();
+        double d_qb_x = T_bb_p.translation().x;
+        double d_qb_y = T_bb_p.translation().y;
+
+
+        // [3] Transform dqb in {b} to dq in {s}
+
+        double dqtheta = d_qb_p_theta;
+        double dqx = std::cos(q.theta) * d_qb_x - std::sin(q.theta) * d_qb_y;
+        double dqy = std::sin(q.theta) * d_qb_x + std::cos(q.theta) * d_qb_y;
+
+        // [4] Update robot config
+
+        q.theta += dqtheta;
         q.theta = normalize_angle(q.theta);
-        q.x += dq_x;
-        q.y += dq_y;
+        q.x += dqx;
+        q.y += dqy;
 
+        // Update wheel positions as well?
         wheel_position_.left += wheel_pos_new.left;
         wheel_position_.right += wheel_pos_new.right;
     }
+    
 
     Twist2D DiffDrive::BodyTwist(WheelPos wheel_pos_new)
     {

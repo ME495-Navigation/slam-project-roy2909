@@ -177,7 +177,7 @@ private:
     // RCLCPP_ERROR(this->get_logger(),"[cmd_vel] Angular: %f    x: %f", twist_.omega, twist_.x);
 
     vels_ = robot_.InverseKinematics(twist_);
-    RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", vels_.left, vels_.right);
+    // RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", vels_.left, vels_.right);
 
     vels_.left = static_cast<int>(vels_.left / motor_cmd_per_rad_sec_);
     vels_.right = static_cast<int>(vels_.right / motor_cmd_per_rad_sec_);
@@ -187,7 +187,8 @@ private:
     vels_.right = Max_limit(vels_.right);
     wheel_cmd_.left_velocity = vels_.left;
     wheel_cmd_.right_velocity = vels_.right;
-    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
+    wheel_cmd_publisher_->publish(wheel_cmd_);
+    RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
   }
 

@@ -105,7 +105,7 @@ public:
       std::bind(&odometry::initial_pose_callback, this, _1, _2));
     odom_.header.frame_id = odom_id_;
     odom_.child_frame_id = body_id_;
-      Q=robot_.get_config();
+      // Q=robot_.get_config();
   }
 
 private:
@@ -159,11 +159,7 @@ private:
       wheel_radius_, track_width_, {0.0, 0.0}, {request->x, request->y,
         request->theta});
   }
-  // /// \brief Broadcasts odometry transform
-  // void broadcast_odom_transform()
-  // {
-   
-  // }
+
   // Variables
   std::string body_id_;
   std::string odom_id_;
