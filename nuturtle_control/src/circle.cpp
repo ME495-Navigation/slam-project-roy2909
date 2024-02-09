@@ -44,7 +44,7 @@ public:
     // Frequency
     auto frequency_desc = rcl_interfaces::msg::ParameterDescriptor{};
     frequency_desc.description = "Timer Frequency (Hz)";
-    this->declare_parameter("frequency", 100 , frequency_desc);
+    this->declare_parameter("frequency", 100, frequency_desc);
     frequency_ = this->get_parameter("frequency").as_int();
     //Publisher
     cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
@@ -72,7 +72,7 @@ private:
     nuturtle_control::srv::Control::Request::SharedPtr request,
     nuturtle_control::srv::Control::Response::SharedPtr)
   {
-   
+
     T_.linear.x = request->radius * request->velocity;
     T_.linear.y = 0.0;
     T_.angular.z = request->velocity;
@@ -82,7 +82,7 @@ private:
     std_srvs::srv::Empty::Request::SharedPtr,
     std_srvs::srv::Empty::Response::SharedPtr)
   {
-    
+
     T_.angular.z = -T_.angular.z;
     T_.linear.x = -T_.linear.x;
   }
@@ -91,7 +91,7 @@ private:
     std_srvs::srv::Empty::Request::SharedPtr,
     std_srvs::srv::Empty::Response::SharedPtr)
   {
-    
+
     T_.linear.x = 0.0;
     T_.linear.y = 0.0;
     T_.angular.z = 0.0;
@@ -100,15 +100,15 @@ private:
   /// \brief updates at fixed rate
   void timer_callback()
   {
-     
-      cmd_vel_pub_->publish(T_);
-     
-    
+
+    cmd_vel_pub_->publish(T_);
+
+
   }
 
   int frequency_;
   double radius_, vel_;
-   geometry_msgs::msg::Twist T;
+  geometry_msgs::msg::Twist T;
   geometry_msgs::msg::Twist T_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reverse_server_;
