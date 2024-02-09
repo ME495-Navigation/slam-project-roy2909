@@ -53,10 +53,10 @@ namespace turtlelib
 
         // Update robot config eq6
 
-        q.theta = dq_theta;
+        q.theta += dq_theta;
         q.theta = normalize_angle(q.theta);
-        q.x = dq_x;
-        q.y = dq_y;
+        q.x += dq_x;
+        q.y += dq_y;
 
         wheel_position_.left += wheel_pos_new.left;
         wheel_position_.right += wheel_pos_new.right;
