@@ -57,40 +57,40 @@ public:
   { // wheel_radius
     auto wheel_radius_desc = rcl_interfaces::msg::ParameterDescriptor{};
     wheel_radius_desc.description = "Radius of wheels (m)";
-    this->declare_parameter("wheel_radius", -1.0, wheel_radius_desc);
-    wheel_radius_ = this->get_parameter("wheel_radius").as_double();
+    declare_parameter("wheel_radius", -1.0, wheel_radius_desc);
+    wheel_radius_ = get_parameter("wheel_radius").as_double();
     // track_width
     auto track_width_desc = rcl_interfaces::msg::ParameterDescriptor{};
     track_width_desc.description = "Distance between wheels (m)";
-    this->declare_parameter("track_width", -1.0, track_width_desc);
-    track_width_ = this->get_parameter("track_width").as_double();
+    declare_parameter("track_width", -1.0, track_width_desc);
+    track_width_ = get_parameter("track_width").as_double();
     // motor_cmd_max
     auto motor_cmd_max_desc = rcl_interfaces::msg::ParameterDescriptor{};
     motor_cmd_max_desc.description = "The motor command maximum value";
-    this->declare_parameter("motor_cmd_max", -1, motor_cmd_max_desc);
-    motor_cmd_max_ = this->get_parameter("motor_cmd_max").as_int();
+    declare_parameter("motor_cmd_max", -1, motor_cmd_max_desc);
+    motor_cmd_max_ = get_parameter("motor_cmd_max").as_int();
 
     //  motor_cmd_per_rad_sec
     auto motor_cmd_per_rad_sec_desc = rcl_interfaces::msg::ParameterDescriptor{};
     motor_cmd_per_rad_sec_desc.description = "Each motor command unit (mcu) is 0.024 (rad/sec) ";
-    this->declare_parameter("motor_cmd_per_rad_sec", -1.0, motor_cmd_per_rad_sec_desc);
-    motor_cmd_per_rad_sec_ = this->get_parameter("motor_cmd_per_rad_sec").as_double();
+    declare_parameter("motor_cmd_per_rad_sec", -1.0, motor_cmd_per_rad_sec_desc);
+    motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").as_double();
 
     // encoder_ticks_per_rad
     auto encoder_ticks_per_rad_desc = rcl_interfaces::msg::ParameterDescriptor{};
     encoder_ticks_per_rad_desc.description = "The number of encoder ticks per radian (ticks/rad)";
-    this->declare_parameter("encoder_ticks_per_rad", -1.0, encoder_ticks_per_rad_desc);
-    encoder_ticks_per_rad_ = this->get_parameter("encoder_ticks_per_rad").as_double();
+    declare_parameter("encoder_ticks_per_rad", -1.0, encoder_ticks_per_rad_desc);
+    encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").as_double();
 
     // collision_radius
     auto collision_radius_desc = rcl_interfaces::msg::ParameterDescriptor{};
     collision_radius_desc.description =
       " This is some simplified geometry used for collision detection (m)";
-    this->declare_parameter("collision_radius", -1.0, collision_radius_desc);
-    collision_radius_ = this->get_parameter("collision_radius").as_double();
+    declare_parameter("collision_radius", -1.0, collision_radius_desc);
+    collision_radius_ = get_parameter("collision_radius").as_double();
     declare_parameter("rate", 200.0);
     rate_ = get_parameter("rate").as_double();
-   
+
 
     if (wheel_radius_ == -1.0 || track_width_ == -1.0 || motor_cmd_max_ == -1.0 ||
       motor_cmd_per_rad_sec_ == -1.0 || encoder_ticks_per_rad_ == -1.0 ||
@@ -99,9 +99,14 @@ public:
       RCLCPP_ERROR_STREAM_ONCE(this->get_logger(), "Parameters not defined ");
       throw std::runtime_error("Parameters not defined!");
     }
+    joint_states_.name = {"wheel_left_link", "wheel_right_link"};
+    joint_states_.position.push_back(0);
+    joint_states_.position.push_back(0);
+    joint_states_.velocity.push_back(0);
+    joint_states_.velocity.push_back(0);
 
-    
-    // Pubishers
+
+    // Publishers
     wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
     joint_states_publisher_ = create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
 
@@ -119,7 +124,7 @@ public:
     // Timer
     timer_ = create_wall_timer(1s / rate_, std::bind(&Turtle_control::timer_callback, this));
     joint_states_.header.frame_id = "red/base_link";
-    robot_ = {track_width_, wheel_radius_};
+    robot_=turtlelib::DiffDrive{wheel_radius_,track_width_};
     duration = 0.0;
     prev_time_step_ = this->now();
   }
@@ -129,7 +134,7 @@ private:
   double wheel_radius_, track_width_, motor_cmd_max_;
   double motor_cmd_per_rad_sec_, encoder_ticks_per_rad_, collision_radius_;
   double rate_;
-  turtlelib::DiffDrive robot_ = {track_width_, wheel_radius_};
+  turtlelib::DiffDrive robot_;
   turtlelib::Twist2D twist_;
   turtlelib::WheelPos vels_;
   nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
@@ -140,8 +145,6 @@ private:
   // Publishers
   rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_publisher_;
-
-  // Subscribers
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
   rclcpp::Subscription<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_subscriber_;
 
@@ -150,13 +153,13 @@ private:
 
   void timer_callback()
   {
-    
+
     wheel_cmd_publisher_->publish(wheel_cmd_);
 
     joint_states_.header.stamp = this->now();
     joint_states_publisher_->publish(joint_states_);
   }
-   /// \brief limits the max motor command value
+  /// \brief limits the max motor command value
   double Max_limit(double wheel_vel)
   {
     return (wheel_vel >
@@ -165,38 +168,36 @@ private:
   }
   void cmd_vel_callback(const std::shared_ptr<geometry_msgs::msg::Twist> msg)
   {
-  
+
     twist_ = {
       static_cast<double>(msg->angular.z),
       static_cast<double>(msg->linear.x),
       static_cast<double>(msg->linear.y)
     };
-    RCLCPP_ERROR(this->get_logger(),"[cmd_vel] Angular: %f    x: %f", twist_.omega, twist_.x);
-  
+    // RCLCPP_ERROR(this->get_logger(),"[cmd_vel] Angular: %f    x: %f", twist_.omega, twist_.x);
+
     vels_ = robot_.InverseKinematics(twist_);
     RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", vels_.left, vels_.right);
 
     vels_.left = static_cast<int>(vels_.left / motor_cmd_per_rad_sec_);
     vels_.right = static_cast<int>(vels_.right / motor_cmd_per_rad_sec_);
-    RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %d    Right vel: %d", vels_.left, vels_.right);
+    // RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %d    Right vel: %d", vels_.left, vels_.right);
 
     vels_.left = Max_limit(vels_.left);
-    vels_.right =Max_limit(vels_.right);
+    vels_.right = Max_limit(vels_.right);
     wheel_cmd_.left_velocity = vels_.left;
     wheel_cmd_.right_velocity = vels_.right;
-  RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
+    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
   }
 
   void sensor_data_callback_(const std::shared_ptr<nuturtlebot_msgs::msg::SensorData> msg)
   {
-    joint_states_.name = {"wheel_left_link", "wheel_right_link"};
-    joint_states_.position = {0.0, 0.0};
-    joint_states_.velocity = {0.0, 0.0};
+    
     duration = (this->now() - prev_time_step_).seconds();
     joint_states_.velocity = {
-      (msg->left_encoder / encoder_ticks_per_rad_ - joint_states_.position[0]) / duration,
-      (msg->right_encoder / encoder_ticks_per_rad_ - joint_states_.position[1]) / duration
+      (msg->left_encoder / encoder_ticks_per_rad_ - joint_states_.position.at(0)) / duration,
+      (msg->right_encoder / encoder_ticks_per_rad_ - joint_states_.position.at(1)) / duration
     };
     joint_states_.position = {
       msg->left_encoder / encoder_ticks_per_rad_,

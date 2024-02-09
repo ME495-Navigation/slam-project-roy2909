@@ -93,18 +93,22 @@ public:
     obstacles_x_ = get_parameter("obstacles.x").get_parameter_value().get<std::vector<double>>();
     obstacles_y_ = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
     obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<double>();
-    motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
-    encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
+    motor_cmd_per_rad_sec_ =
+      get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
+    encoder_ticks_per_rad_ =
+      get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
 
     // Publishers
-    timestep_publisher_ = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
+    timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
 
-    walls_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
+    walls_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
 
-    obstacles_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
+    obstacles_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>(
       "~/obstacles", 10);
 
-    sensor_data_publisher_ = create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
+    sensor_data_publisher_ = create_publisher<nuturtlebot_msgs::msg::SensorData>(
+      "red/sensor_data",
+      10);
 
 
     // Subscribers
@@ -112,11 +116,11 @@ public:
       "red/wheel_cmd", 10, std::bind(&Nusim::wheel_cmd_callback, this, std::placeholders::_1));
 
     // Services
-    reset_ = this->create_service<std_srvs::srv::Empty>(
+    reset_ = create_service<std_srvs::srv::Empty>(
       "~/reset",
       std::bind(&Nusim::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
 
-    teleport_ = this->create_service<nusim::srv::Teleport>(
+    teleport_ = create_service<nusim::srv::Teleport>(
       "~/teleport",
       std::bind(&Nusim::teleport_callback, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -124,7 +128,7 @@ public:
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
     timer_ =
-      this->create_wall_timer(
+      create_wall_timer(
       std::chrono::milliseconds(1000 / rate_),
       std::bind(&Nusim::timer_callback, this));
 
@@ -182,7 +186,7 @@ private:
 
     // Read message content and assign it to corresponding tf variables
     geometry_msgs::msg::TransformStamped t;
-    t.header.stamp = this->get_clock()->now();
+    t.header.stamp = get_clock()->now();
     t.header.frame_id = "nusim/world";
     t.child_frame_id = "red/base_footprint";
 
@@ -212,11 +216,11 @@ private:
 
   void update_robot_position()
   {
-    // Do forward kinematics
-    turtlelib::WheelPos delta_wheels;
-    delta_wheels.left = updated_wheel_pos_.left;
-    delta_wheels.right = updated_wheel_pos_.right;
-    robot_.ForwardKinematics(delta_wheels);
+    // // Do forward kinematics
+    // turtlelib::WheelPos delta_wheels;
+    // delta_wheels.left = updated_wheel_pos_.left - prev_wheel_pos_.left;
+    // delta_wheels.right = updated_wheel_pos_.right - prev_wheel_pos_.right;
+    robot_.ForwardKinematics(updated_wheel_pos_);
 
     // Extract new positions
     x_ = robot_.get_config().x;
@@ -238,7 +242,6 @@ private:
     updated_wheel_pos_.left = prev_wheel_pos_.left + (wheel_vel_.left * unit_per_run);
     updated_wheel_pos_.right = prev_wheel_pos_.right + (wheel_vel_.right * unit_per_run);
 
-    // Format as sensor data (in ticks)
     sensor_data_msg_.left_encoder = updated_wheel_pos_.left * encoder_ticks_per_rad_;
     sensor_data_msg_.right_encoder = updated_wheel_pos_.right * encoder_ticks_per_rad_;
     sensor_data_msg_.stamp = get_clock()->now();
@@ -254,13 +257,10 @@ private:
 
   void wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
-    // Left and right wheel velocity, in "motor command units" (mcu)
-    // For the turtlebot, each motor can be command with an integer velocity of between
-    // -265 mcu and 265 mcu, and 1 mcu = 0.024 rad/sec
 
-
-    wheel_vel_.left = static_cast<int>(msg.left_velocity * motor_cmd_per_rad_sec_);
-    wheel_vel_.right = static_cast<int>(msg.right_velocity * motor_cmd_per_rad_sec_);
+    // RCLCPP_ERROR(this->get_logger(),"Am i entering");
+    wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_;
+    wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_;
   }
 
   /// \brief Resets the simulation to initial configuration
@@ -380,8 +380,7 @@ private:
   nuturtlebot_msgs::msg::SensorData sensor_data_msg_;
   turtlelib::DiffDrive robot_;
   std::vector<double> x_pos_, y_pos_, x_scale_, y_scale_;
-  
-  
+
 
 };
 

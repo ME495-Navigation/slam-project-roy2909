@@ -44,7 +44,9 @@ target_link_libraries(odometry "${cpp_typesupport_target}")
 target_link_libraries(circle "${cpp_typesupport_target}")
 
 install(TARGETS
-turtle_control odometry circle
+turtle_control
+odometry
+circle
 DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
@@ -84,18 +86,13 @@ if(BUILD_TESTING)
   # )
 
   install(TARGETS
-  turtle_control_test 
+  turtle_control_test
     DESTINATION lib/${PROJECT_NAME}
   )
-
-  install(FILES
-    test/turtle_control_test.launch.xml  
-    DESTINATION share/${PROJECT_NAME}
-  )
-
   catch_ros2_add_integration_test(turtle_control_test
     LAUNCH_FILE turtle_control_test.launch.xml  # example in XML
   )
+
   # catch_ros2_add_integration_test(turtle_odom_test_node
   #   LAUNCH_FILE turtle_odom_test.launch.xml  # example in XML
   # )
@@ -106,6 +103,6 @@ install(DIRECTORY
         launch
         srv
         test
-        DESTINATION share/${PROJECT_NAME}/)
+        DESTINATION share/${PROJECT_NAME})
 
 ament_package()
