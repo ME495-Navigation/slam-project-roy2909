@@ -105,7 +105,7 @@ public:
       std::bind(&odometry::initial_pose_callback, this, _1, _2));
     odom_.header.frame_id = odom_id_;
     odom_.child_frame_id = body_id_;
-      // Q=robot_.get_config();
+     Q=robot_.get_config();
   }
 
 private:
@@ -116,6 +116,8 @@ private:
     odom_.header.stamp = get_clock()->now();
     new_wheel_.left = msg.position.at(0) - prev_wheel_.left;
     new_wheel_.right = msg.position.at(1) - prev_wheel_.right;
+    prev_wheel_.left=msg.position.at(0);
+    prev_wheel_.right=msg.position.at(1);
     robot_.ForwardKinematics(new_wheel_);
     Q =robot_.get_config();
     twistb_=robot_.BodyTwist(new_wheel_);
@@ -130,8 +132,7 @@ private:
     odom_.twist.twist.linear.x=twistb_.x;
     odom_.twist.twist.linear.y=twistb_.y;
     odom_.twist.twist.angular.z=twistb_.omega;
-    prev_wheel_.left=msg.position.at(0);
-    prev_wheel_.right=msg.position.at(1);
+    
 
     geometry_msgs::msg::TransformStamped t;
 
