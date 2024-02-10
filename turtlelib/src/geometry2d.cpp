@@ -54,7 +54,7 @@ namespace turtlelib
     double normalize_angle(double rad)
     {
 // ############################## Begin_Citation [2] ##############################
-        double normalizedAngle = rad - (ceil((rad + PI) / (2 * PI)) - 1) * 2 * PI;
+        double normalizedAngle = rad - (ceil((rad + PI) / (2.0 * PI)) - 1.0) * 2.0 * PI;
         return normalizedAngle;
 // ############################## Begin_Citation [2] ##############################
     }
@@ -62,9 +62,7 @@ namespace turtlelib
     Vector2D operator-(const Point2D &head, const Point2D &tail)
     {
         Vector2D result;
-        result.x = head.x - tail.x;
-        result.y = head.y - tail.y;
-        return result;
+        return {head.x - tail.x, head.y - tail.y};
     }
 
     Vector2D & Vector2D::operator+=(const Vector2D & rhs) {
@@ -95,9 +93,7 @@ namespace turtlelib
     Vector2D operator+(const Vector2D &lhs, const Vector2D &rhs)
     {
         Vector2D result ;
-        result.x=lhs.x+rhs.x;
-        result.y=lhs.y+rhs.y;
-        return result;
+        return {lhs.x+rhs.x, lhs.y+rhs.y};
     }
     Vector2D operator*(const double & lhs, Vector2D rhs)
     {

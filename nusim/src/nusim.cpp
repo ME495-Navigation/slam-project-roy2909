@@ -144,13 +144,13 @@ public:
     x_pos_ = {
       0.0,
       0.0,
-      arena_x_length_ / 2 + thickness_ / 2,
-      -arena_x_length_ / 2 - thickness_ / 2,
+      arena_x_length_ / 2.0 + thickness_ / 2.0,
+      -arena_x_length_ / 2.0 - thickness_ / 2.0,
     };
     // Y coordinates of walls
     y_pos_ = {
-      arena_y_length_ / 2 + thickness_ / 2,
-      -arena_y_length_ / 2 - thickness_ / 2,
+      arena_y_length_ / 2.0 + thickness_ / 2.0,
+      -arena_y_length_ / 2.0 - thickness_ / 2.0,
       0.0,
       0.0,
     };
@@ -264,7 +264,7 @@ private:
   {
     if (obstacles_x_.size() != obstacles_y_.size()) {
       RCLCPP_ERROR(this->get_logger(), "Lengths of obstacles/x and obstacles/y must be the same.");
-      rclcpp::shutdown();
+      throw std::runtime_error("Lengths of obstacles/x and obstacles/y must be the same.");
       return;
     }
     for (size_t i = 0; i < obstacles_x_.size(); i++) {

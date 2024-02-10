@@ -30,8 +30,11 @@ namespace turtlelib
     }
 
     Transform2D::Transform2D() : trans{0.0, 0.0}, angle(0.0) {}
+
     Transform2D::Transform2D(Vector2D trans) : trans(trans), angle(0.0) {}
+
     Transform2D::Transform2D(double radians) : trans{0.0, 0.0}, angle(radians) {}
+
     Transform2D::Transform2D(Vector2D trans, double radians) : trans(trans), angle(radians) {}
 
     Point2D Transform2D::operator()(Point2D p) const
@@ -58,16 +61,15 @@ namespace turtlelib
 
     Transform2D Transform2D::inv() const
     {
-        Vector2D inv_xy = {-trans.x * cos(angle) - trans.y * sin(angle), -trans.y * cos(angle) + trans.x * sin(angle)};
-        double inv_rot = -angle;
-        return Transform2D{inv_xy, inv_rot};
+        const Vector2D inv_xy = {-trans.x * cos(angle) - trans.y * sin(angle), -trans.y * cos(angle) + trans.x * sin(angle)};
+        return {inv_xy, -angle};
     }
 
     Transform2D &Transform2D::operator*=(const Transform2D &rhs)
     {
-        double currentX = trans.x;
-        double currentY = trans.y;
-        double currentAngle = angle;
+        const auto currentX = trans.x;
+        const auto currentY = trans.y;
+        const auto currentAngle = angle;
 
         trans.x = cos(currentAngle) * rhs.trans.x - sin(currentAngle) * rhs.trans.y + currentX;
         trans.y = sin(currentAngle) * rhs.trans.x + cos(currentAngle) * rhs.trans.y + currentY;

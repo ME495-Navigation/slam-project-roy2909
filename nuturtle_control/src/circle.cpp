@@ -42,9 +42,7 @@ public:
   : Node("Circle")
   {
     // Frequency
-    auto frequency_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    frequency_desc.description = "Timer Frequency (Hz)";
-    declare_parameter("frequency", 100, frequency_desc);
+    declare_parameter("frequency", 100);
     frequency_ = get_parameter("frequency").as_int();
     //Publisher
     cmd_vel_pub_ = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
