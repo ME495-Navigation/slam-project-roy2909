@@ -60,7 +60,7 @@ public:
     body_id_ = get_parameter("body_id").get_parameter_value().get<std::string>();
     // odom_id
     auto odom_id_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    odom_id_desc.description = "odometry frame(odom)";
+    odom_id_desc.description = "odometry frame (odom)";
     declare_parameter("odom_id", "odom", odom_id_desc);
     odom_id_ = get_parameter("odom_id").get_parameter_value().get<std::string>();
 
@@ -90,22 +90,22 @@ public:
     robot_ = turtlelib::DiffDrive{wheel_radius_, track_width_};
 
     // Publishers
-    odometry_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", 10);
+    odometry_publisher_ = create_publisher<nav_msgs::msg::Odometry>("odom", 10);
 
     tf_broadcaster_ =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     // Subscribers
-    joint_state_subscriber_ = this->create_subscription<sensor_msgs::msg::JointState>(
+    joint_state_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
       "red/joint_states", 10, std::bind(
         &odometry::odometry_callback,
         this, _1));
     //Service
-    initial_pose_server_ = this->create_service<nuturtle_control::srv::InitialPose>(
+    initial_pose_server_ = create_service<nuturtle_control::srv::InitialPose>(
       "~/initial_pose",
       std::bind(&odometry::initial_pose_callback, this, _1, _2));
     odom_.header.frame_id = odom_id_;
     odom_.child_frame_id = body_id_;
-    //  Q=robot_.get_config();
+
   }
 
 private:
@@ -114,13 +114,9 @@ private:
   {
 
     odom_.header.stamp = get_clock()->now();
-    // RCLCPP_ERROR(this->get_logger(),"[Inirial joint state update] js1: %d   ", msg.position.at(0));
     new_wheel_.left = msg.position.at(0) - prev_wheel_.left;
-    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d   ", new_wheel_.left);
-
     new_wheel_.right = msg.position.at(1) - prev_wheel_.right;
     prev_wheel_.left=msg.position.at(0);
-    // RCLCPP_ERROR(this->get_logger(),"[Previous wheel] prev_wheel: %d   ", prev_wheel_.left);
     prev_wheel_.right=msg.position.at(1);
     robot_.ForwardKinematics(new_wheel_);
     Q =robot_.get_config();
@@ -179,10 +175,11 @@ private:
   nav_msgs::msg::Odometry odom_;
   tf2::Quaternion q_;
   turtlelib::RobotConfig Q;
-  //Pubslishers and Subscribers
+  //Pubslishers 
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odometry_publisher_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscriber_;
+  //Service
   rclcpp::Service<nuturtle_control::srv::InitialPose>::SharedPtr initial_pose_server_;
 };
 /// \brief main funtion of node

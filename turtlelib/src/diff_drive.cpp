@@ -29,24 +29,19 @@ namespace turtlelib
         q.y = new_config.y;
         q.theta = new_config.theta;
     }
-    void DiffDrive::ForwardKinematics(WheelPos wheel_pos_new)
+    void DiffDrive::ForwardKinematics(WheelPos del_wheels)
     {
         
         // [1] Get the body twist Vb
 
         Twist2D Vb;
-        Vb.omega = ((wheel_radius_ / (2.0 * (wheel_track_/2.0))) * (wheel_pos_new.right - wheel_pos_new.left));
-        Vb.x = (wheel_radius_ / 2.0) * (wheel_pos_new.left + wheel_pos_new.right);
-        // Vb.y = 0.0;
+        Vb.omega = ((wheel_radius_ / (2.0 * (wheel_track_/2.0))) * (del_wheels.right - del_wheels.left));
+        Vb.x = (wheel_radius_ / 2.0) * (del_wheels.left + del_wheels.right);
+        Vb.y = 0.0;
 
-        // Vb.omega = ((-delta_wheels.phi_l + delta_wheels.phi_r) / wheel_track) * wheel_radius;
-        // Vb.x = ((delta_wheels.phi_l + delta_wheels.phi_r) / 2.0) * wheel_radius;
-
-
+       
         // [2] Find the body transformation from the twist
-        // This expresses the new chassis frame, b_p, 
-        // relative to the initial frame, b.
-
+       
         Transform2D T_bb_p = integrate_twist(Vb);
 
         // Extract the transformation values from
@@ -57,7 +52,7 @@ namespace turtlelib
         double d_qb_y = T_bb_p.translation().y;
 
 
-        // [3] Transform dqb in {b} to dq in {s}
+        // [3] Transform dqb in {body frame} to dq in {space frame}
 
         double dqtheta = d_qb_p_theta;
         double dqx = std::cos(q.theta) * d_qb_x - std::sin(q.theta) * d_qb_y;
@@ -70,16 +65,16 @@ namespace turtlelib
         q.x += dqx;
         q.y += dqy;
 
-        wheel_position_.left += wheel_pos_new.left;
-        wheel_position_.right += wheel_pos_new.right;
+        wheel_position_.left += del_wheels.left;
+        wheel_position_.right += del_wheels.right;
     }
     
 
-    Twist2D DiffDrive::BodyTwist(WheelPos wheel_pos_new)
+    Twist2D DiffDrive::BodyTwist(WheelPos del_wheels)
     {
         Twist2D Vb;
-        Vb.omega = ((wheel_radius_ / (2.0 * (wheel_track_/2.0))) * (wheel_pos_new.right - wheel_pos_new.left));
-        Vb.x = (wheel_radius_ / 2.0) * (wheel_pos_new.left + wheel_pos_new.right);
+        Vb.omega = ((wheel_radius_ / (2.0 * (wheel_track_/2.0))) * (del_wheels.right - del_wheels.left));
+        Vb.x = (wheel_radius_ / 2.0) * (del_wheels.left + del_wheels.right);
         return Vb;
     }
 

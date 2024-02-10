@@ -40,6 +40,8 @@ The nusim package provides a simulated robot environment for visualization of tu
 * obstacles.x (std::vector<double>): List of the obstacles' x coordinates (m)
 * obstacles.y (std::vector<double>): List of the obstacles' y coordinates (m)
 * obstacles.r (double): Radius of cylindrical obstacles (m)
+* motor_cmd_per_rad_sec (double): Each motor command unit (mcu) is 0.024 (rad/sec)
+* encoder_ticks_per_rad (double): The number of encoder ticks per radian (ticks/rad)
   
 Image of simulator in Rviz2
 

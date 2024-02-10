@@ -31,3 +31,22 @@
 * Task C.5 completed
 * Task C.6 completed
 * Task C.7 completed
+
+## Task D
+* Task D.1 completed
+* Task D.2 completed
+* Task D.3 completed
+
+## Task E
+* Task E.1 completed
+* Task E.2 completed
+* Task E.3 completed
+* Task E.4 PROGESS
+* Task E.5 completed
+
+## Task F
+* Task F.1 completed
+* Task F.2 completed
+* Task F.5 completed
+
+

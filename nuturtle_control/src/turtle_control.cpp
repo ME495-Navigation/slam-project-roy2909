@@ -100,9 +100,6 @@ public:
       throw std::runtime_error("Parameters not defined!");
     }
     
-    
-
-
     // Publishers
     wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
     joint_states_publisher_ = create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
@@ -114,16 +111,16 @@ public:
         std::placeholders::_1));
 
     sensor_data_subscriber_ = create_subscription<nuturtlebot_msgs::msg::SensorData>(
-      "red/sensor_data", 10, std::bind(
+      "sensor_data", 10, std::bind(
         &Turtle_control::sensor_data_callback_, this,
         std::placeholders::_1));
 
     // Timer
     timer_ = create_wall_timer(1s / rate_, std::bind(&Turtle_control::timer_callback, this));
-    joint_states_.header.frame_id = "red/base_link";
     robot_=turtlelib::DiffDrive{wheel_radius_,track_width_};
     duration = 0.0;
     prev_time_step_ = this->now();
+    joint_states_.header.frame_id = "red/base_link";
     joint_states_.name={"wheel_left_joint","wheel_right_joint"};
     joint_states_.position={0.0,0.0};
     joint_states_.velocity={0.0,0.0};
@@ -131,33 +128,11 @@ public:
   }
 
 private:
-  // Parameters
-  double wheel_radius_, track_width_, motor_cmd_max_;
-  double motor_cmd_per_rad_sec_, encoder_ticks_per_rad_, collision_radius_;
-  double rate_;
-  turtlelib::DiffDrive robot_;
-  turtlelib::Twist2D twist_;
-  turtlelib::WheelPos vels_;
-  nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
-  sensor_msgs::msg::JointState joint_states_;
-  double duration;
-  rclcpp::Time prev_time_step_;
-  double count=1.0;
-
-  // Publishers
-  rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_publisher_;
-  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
-  rclcpp::Subscription<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_subscriber_;
-
-  // Timer
-  rclcpp::TimerBase::SharedPtr timer_;
-
+ 
+/// \brief Main timer function 
   void timer_callback()
   {
-
     wheel_cmd_publisher_->publish(wheel_cmd_);
-
     joint_states_.header.stamp = this->now();
     joint_states_publisher_->publish(joint_states_);
   }
@@ -168,6 +143,7 @@ private:
            motor_cmd_max_) ? motor_cmd_max_ : ((wheel_vel <
            -motor_cmd_max_) ? -motor_cmd_max_ : wheel_vel);
   }
+  /// \brief callback to send wheel command velocities
   void cmd_vel_callback(const geometry_msgs::msg::Twist &msg)
   {
 
@@ -176,29 +152,21 @@ private:
       static_cast<double>(msg.linear.x),
       static_cast<double>(msg.linear.y)
     };
-    // RCLCPP_ERROR(this->get_logger(),"[cmd_vel] Angular: %f    x: %f", twist_.omega, twist_.x);
-
+    
     vels_ = robot_.InverseKinematics(twist_);
-    // RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", vels_.left, vels_.right);
-
     vels_.left = static_cast<int>(vels_.left / motor_cmd_per_rad_sec_);
     vels_.right = static_cast<int>(vels_.right / motor_cmd_per_rad_sec_);
-    // RCLCPP_ERROR(this->get_logger(),"[after motor] motor: %f ", motor_cmd_per_rad_sec_);
-    // RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %f    Right vel: %f", vels_.left, vels_.right);
-
     vels_.left = Max_limit(vels_.left);
     vels_.right = Max_limit(vels_.right);
     wheel_cmd_.left_velocity = vels_.left;
     wheel_cmd_.right_velocity = vels_.right;
-    // wheel_cmd_publisher_->publish(wheel_cmd_);
-    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
+  
 
   }
-
+/// \brief Callback to get encoder data and update joint states
   void sensor_data_callback_(const nuturtlebot_msgs::msg::SensorData &msg)
-  {
+  { //sets the duration between each state
     duration = (this->now() - prev_time_step_).seconds();
-    RCLCPP_ERROR(this->get_logger(),"timer %f",duration);
    
     joint_states_.position = {
       msg.left_encoder / encoder_ticks_per_rad_,
@@ -210,8 +178,24 @@ private:
     };
     prev_time_step_ = this->now();
 }
-};
 
+  turtlelib::DiffDrive robot_;
+  turtlelib::Twist2D twist_;
+  turtlelib::WheelPos vels_;
+  nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
+  sensor_msgs::msg::JointState joint_states_;
+  rclcpp::Time prev_time_step_;
+  rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_publisher_;
+  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
+  rclcpp::Subscription<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_subscriber_;
+  rclcpp::TimerBase::SharedPtr timer_;
+  double wheel_radius_, track_width_, motor_cmd_max_;
+  double motor_cmd_per_rad_sec_, encoder_ticks_per_rad_, collision_radius_;
+  double rate_;
+    double duration;
+};
+/// \brief Main FUNCTION TO START NODE
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
