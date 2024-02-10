@@ -19,4 +19,6 @@ Circle is responsible to make the robot move in a circle at a set velocity and r
         Determines whether to use rviz or not - true or false
         (default: 'true')
 
-  
+# Test on physical robot
+
+https://github.com/ME495-Navigation/slam-project-roy2909/assets/144197977/98a93165-4894-47d3-a368-035152a0378b
