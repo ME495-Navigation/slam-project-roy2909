@@ -18,8 +18,9 @@
 ///     \param ~/timestep (std_msgs::msg::UInt64): current timestep of the simulation
 ///     \param ~/walls (visualization_msgs::msg::MarkerArray): MarkerArray of Walls in Rviz2
 ///     \param ~/obstacles (visualization_msgs::msg::MarkerArray): MarkerArray of cylindrial obstacles in Rviz2
+///     \param /red/sensor_data (nuturtlebot_msgs::msg::SensorData): Wheel encoder ticks
 /// SUBSCRIBES:
-///     None
+///     \param /red/wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command velocity                                                                
 /// SERVERS:
 ///      \param ~/reset (std_srvs::srv::Empty): Resets simulation
 ///      \param ~/teleport (nusim::srv::Teleport): Teleports robot to a dessired position
@@ -65,6 +66,9 @@ using namespace std::chrono_literals;
 ///  \param obstacles_x_ (std::vector<double>): List of the obstacles' x coordinates (m)
 ///  \param obstacles_y_ (std::vector<double>): List of the obstacles' y coordinates (m)
 ///  \param obstacles_r_ (double): Radius of cylindrical obstacles (m)
+///  \param motor_cmd_max (int): The motor command maximum value
+///  \param motor_cmd_per_rad_sec (double): Each motor command unit (mcu) is 0.024 (rad/sec)
+///  \param encoder_ticks_per_rad(double): The number of encoder ticks per radian (ticks/rad)
 class Nusim : public rclcpp::Node
 {
 public:
@@ -100,12 +104,9 @@ public:
 
     // Publishers
     timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
-
     walls_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
-
     obstacles_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>(
       "~/obstacles", 10);
-
     sensor_data_publisher_ = create_publisher<nuturtlebot_msgs::msg::SensorData>(
       "red/sensor_data",
       10);
@@ -113,16 +114,16 @@ public:
 
     // Subscribers
     wheel_cmd_subscriber_ = create_subscription<nuturtlebot_msgs::msg::WheelCommands>(
-      "red/wheel_cmd", 10, std::bind(&Nusim::wheel_cmd_callback, this, std::placeholders::_1));
+      "red/wheel_cmd", 10, std::bind(&Nusim::Wheel_cmd_callback, this, std::placeholders::_1));
 
     // Services
     reset_ = create_service<std_srvs::srv::Empty>(
       "~/reset",
-      std::bind(&Nusim::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
+      std::bind(&Nusim::Reset_callback, this, std::placeholders::_1, std::placeholders::_2));
 
     teleport_ = create_service<nusim::srv::Teleport>(
       "~/teleport",
-      std::bind(&Nusim::teleport_callback, this, std::placeholders::_1, std::placeholders::_2));
+      std::bind(&Nusim::Teleport_callback, this, std::placeholders::_1, std::placeholders::_2));
 
     // Broadcasters
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -131,7 +132,7 @@ public:
       create_wall_timer(
       std::chrono::milliseconds(1000 / rate_),
       std::bind(&Nusim::timer_callback, this));
-
+    //Set initial position
     x_ = x0_;
     y_ = y0_;
     theta_ = theta0_;
@@ -172,103 +173,49 @@ public:
     wall_marker();
     // Obstacles
     obstacle_marker();
-    // update_wheel_positions();
-    // update_robot_position();
+    update_wheel_pos();
+    update_robot_pos();
   }
 
 private:
-  /// \brief Main timer callback function
-  void timer_callback()
+  /// \brief Updates the robot psoition in environmnet 
+  void update_robot_pos()
   {
-    auto message = std_msgs::msg::UInt64();
-    message.data = timestep_++;
+    turtlelib::WheelPos wheel_del;
+    wheel_del.left = updated_wheel_pos_.left - prev_wheel_pos_.left;
+    wheel_del.right = updated_wheel_pos_.right - prev_wheel_pos_.right;
+    robot_.ForwardKinematics(wheel_del);
 
-    // Publish the UInt64 message
-    timestep_publisher_->publish(message);
-
-    // Read message content and assign it to corresponding tf variables
-    geometry_msgs::msg::TransformStamped t;
-    t.header.stamp = get_clock()->now();
-    t.header.frame_id = "nusim/world";
-    t.child_frame_id = "red/base_footprint";
-
-    // Turtle only exists in 2D, so we set z coordinate to 0
-    t.transform.translation.x = x_;
-    t.transform.translation.y = y_;
-    t.transform.translation.z = 0.0;
-
-    // Likewise, turtle can only rotate around one axis -- z
-    tf2::Quaternion q;
-    q.setRPY(0, 0, theta_);
-    t.transform.rotation.x = q.x();
-    t.transform.rotation.y = q.y();
-    t.transform.rotation.z = q.z();
-    t.transform.rotation.w = q.w();
-
-    // Send the transform
-    tf_broadcaster_->sendTransform(t);
-
-    walls_publisher_->publish(wall_array_);
-    obstacles_publisher_->publish(obstacle_array_);
-
-    update_robot_position();
-    update_wheel_positions();
-
-  }
-
-  void update_robot_position()
-  {
-    turtlelib::WheelPos delta_wheels;
-    delta_wheels.left = updated_wheel_pos_.left - prev_wheel_pos_.left;
-    delta_wheels.right = updated_wheel_pos_.right - prev_wheel_pos_.right;
-    robot_.ForwardKinematics(delta_wheels);
-
-    // Extract new positions
+    // Extract new CONFIGURTION
     x_ = robot_.get_config().x;
     y_ = robot_.get_config().y;
     theta_ = robot_.get_config().theta;
-
-
-    // RCLCPP_ERROR(this->get_logger(),"x = %f", x_);
-    // printf("Updated robot position: x = %f, y = %f, theta = %f\n", x_, y_, theta_);
+  //update the previous position
    prev_wheel_pos_.left = updated_wheel_pos_.left;
    prev_wheel_pos_.right = updated_wheel_pos_.right;
 
   }
-
-  void update_wheel_positions()
+ /// \brief Updates the wheel positions based on sensor data
+  void update_wheel_pos()
   {
-    double unit_per_run = 1.0 / rate_;
-
-    // Find the updated wheel position
-    updated_wheel_pos_.left = prev_wheel_pos_.left + (wheel_vel_.left * unit_per_run);
-    updated_wheel_pos_.right = prev_wheel_pos_.right + (wheel_vel_.right * unit_per_run);
+    updated_wheel_pos_.left = prev_wheel_pos_.left + (wheel_vel_.left * (1.0 / rate_));
+    updated_wheel_pos_.right = prev_wheel_pos_.right + (wheel_vel_.right * (1.0 / rate_));
 
     sensor_data_msg_.left_encoder = updated_wheel_pos_.left * encoder_ticks_per_rad_;
     sensor_data_msg_.right_encoder = updated_wheel_pos_.right * encoder_ticks_per_rad_;
     sensor_data_msg_.stamp = get_clock()->now();
-
-    // Publish on red/sensor_data
     sensor_data_publisher_->publish(sensor_data_msg_);
 
-    // Reset previous wheel positions
-    // prev_wheel_pos_.left = updated_wheel_pos_.left;
-    // prev_wheel_pos_.right = updated_wheel_pos_.right;
-
   }
-
-  void wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
+ /// \brief Wheel command callbacks
+  void Wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
-
-    
     wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_;
     wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_;
-    //  RCLCPP_ERROR(this->get_logger(),"Am i entering wheel left, %f", wheel_vel_.left);
-    //  RCLCPP_ERROR(this->get_logger(),"wheek cmd from nusim, %f", wheel_vel_.right);
   }
 
-  /// \brief Resets the simulation to initial configuration
-  void reset_callback(
+  /// \brief Resets the simulation 
+  void Reset_callback(
     const std::shared_ptr<std_srvs::srv::Empty::Request>,
     std::shared_ptr<std_srvs::srv::Empty::Response>)
   {
@@ -278,8 +225,8 @@ private:
     theta_ = theta0_;
   }
 
-  /// \brief Moves the robot to a desired pose
-  void teleport_callback(
+  /// \brief Teleport the robot to a desired pose
+  void Teleport_callback(
     const std::shared_ptr<nusim::srv::Teleport::Request> request,
     std::shared_ptr<nusim::srv::Teleport::Response>)
   {
@@ -341,25 +288,46 @@ private:
     }
   }
 
-  // Declare member variables
-  rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
-  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
-  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
+   /// \brief Main timer callback function
+  void timer_callback()
+  {
+    auto message = std_msgs::msg::UInt64();
+    message.data = timestep_++;
+    timestep_publisher_->publish(message);
+    geometry_msgs::msg::TransformStamped t;
+    t.header.stamp = get_clock()->now();
+    t.header.frame_id = "nusim/world";
+    t.child_frame_id = "red/base_footprint";
+    t.transform.translation.x = x_;
+    t.transform.translation.y = y_;
+    t.transform.translation.z = 0.0;
+    tf2::Quaternion q;
+    q.setRPY(0, 0, theta_);
+    t.transform.rotation.x = q.x();
+    t.transform.rotation.y = q.y();
+    t.transform.rotation.z = q.z();
+    t.transform.rotation.w = q.w();
+    tf_broadcaster_->sendTransform(t);
+    walls_publisher_->publish(wall_array_);
+    obstacles_publisher_->publish(obstacle_array_);
+    //update the robot position
+    update_robot_pos();
+    //update the wheel position
+    update_wheel_pos();
+
+  }
 
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_;
   rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_;
-
+  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-
   visualization_msgs::msg::MarkerArray wall_array_;
   visualization_msgs::msg::MarkerArray obstacle_array_;
-
-  // Publishers
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_publisher_;
-
-  // Subscribers
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_subscriber_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
 
   int timestep_;
   int rate_;

@@ -44,20 +44,20 @@ public:
     // Frequency
     auto frequency_desc = rcl_interfaces::msg::ParameterDescriptor{};
     frequency_desc.description = "Timer Frequency (Hz)";
-    this->declare_parameter("frequency", 100, frequency_desc);
-    frequency_ = this->get_parameter("frequency").as_int();
+    declare_parameter("frequency", 100, frequency_desc);
+    frequency_ = get_parameter("frequency").as_int();
     //Publisher
-    cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+    cmd_vel_pub_ = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
 
     //Service
-    reverse_server_ = this->create_service<std_srvs::srv::Empty>(
+    reverse_server_ = create_service<std_srvs::srv::Empty>(
       "~/reverse",
       std::bind(&Circle::reverse_callback, this, _1, _2));
 
-    stop_server_ = this->create_service<std_srvs::srv::Empty>(
+    stop_server_ = create_service<std_srvs::srv::Empty>(
       "~/stop", std::bind(&Circle::stop_callback, this, _1, _2));
 
-    control_server_ = this->create_service<nuturtle_control::srv::Control>(
+    control_server_ = create_service<nuturtle_control::srv::Control>(
       "~/control",
       std::bind(&Circle::control_callback, this, _1, _2));
     //timer

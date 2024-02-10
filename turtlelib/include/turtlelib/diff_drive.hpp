@@ -59,13 +59,13 @@ namespace turtlelib
         void set_pos(WheelPos new_pos);
 
         /// \brief Calculate forward kinematics from new wheel position
-        /// \param wheel_pos_new - new wheel positions
-        void ForwardKinematics(WheelPos wheel_pos_new);
+        /// \param del_wheels - change in wheel positions
+        void ForwardKinematics(WheelPos del_wheels);
 
         /// \brief gives body twist from wheel position
-        /// \param wheel_pos_new - new wheel positions
+        /// \param del_wheels - change in wheel positions
         /// \return body twist
-        Twist2D BodyTwist(WheelPos wheel_pos_new);
+        Twist2D BodyTwist(WheelPos del_wheels);
 
         /// \brief get robot configuration
         /// \return robot configuration

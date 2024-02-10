@@ -6,6 +6,7 @@ A library for handling transformations in SE(2) and other turtlebot-related math
 - se2d - Handles 2D rigid body transformations
 - frame_main - Perform some rigid body computations based on user input
 - svg - Handles visulaization of 2D geometry
+- diff_drive - Responsible for calculating kinematics of a differential drive robot
 
 # Conceptual Questions
 1. If you needed to be able to ~normalize~ Vector2D objects (i.e., find the unit vector in the direction of a given Vector2D):
