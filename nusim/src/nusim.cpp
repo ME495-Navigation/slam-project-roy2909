@@ -20,7 +20,7 @@
 ///     \param ~/obstacles (visualization_msgs::msg::MarkerArray): MarkerArray of cylindrial obstacles in Rviz2
 ///     \param /red/sensor_data (nuturtlebot_msgs::msg::SensorData): Wheel encoder ticks
 /// SUBSCRIBES:
-///     \param /red/wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command velocity                                                                
+///     \param /red/wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command velocity
 /// SERVERS:
 ///      \param ~/reset (std_srvs::srv::Empty): Resets simulation
 ///      \param ~/teleport (nusim::srv::Teleport): Teleports robot to a dessired position
@@ -178,7 +178,7 @@ public:
   }
 
 private:
-  /// \brief Updates the robot psoition in environmnet 
+  /// \brief Updates the robot psoition in environmnet
   void update_robot_pos()
   {
     turtlelib::WheelPos wheel_del;
@@ -190,12 +190,12 @@ private:
     x_ = robot_.get_config().x;
     y_ = robot_.get_config().y;
     theta_ = robot_.get_config().theta;
-  //update the previous position
-   prev_wheel_pos_.left = updated_wheel_pos_.left;
-   prev_wheel_pos_.right = updated_wheel_pos_.right;
+    //update the previous position
+    prev_wheel_pos_.left = updated_wheel_pos_.left;
+    prev_wheel_pos_.right = updated_wheel_pos_.right;
 
   }
- /// \brief Updates the wheel positions based on sensor data
+  /// \brief Updates the wheel positions based on sensor data
   void update_wheel_pos()
   {
     updated_wheel_pos_.left = prev_wheel_pos_.left + (wheel_vel_.left * (1.0 / rate_));
@@ -207,14 +207,14 @@ private:
     sensor_data_publisher_->publish(sensor_data_msg_);
 
   }
- /// \brief Wheel command callbacks
+  /// \brief Wheel command callbacks
   void Wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
     wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_;
     wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_;
   }
 
-  /// \brief Resets the simulation 
+  /// \brief Resets the simulation
   void Reset_callback(
     const std::shared_ptr<std_srvs::srv::Empty::Request>,
     std::shared_ptr<std_srvs::srv::Empty::Response>)
@@ -288,7 +288,7 @@ private:
     }
   }
 
-   /// \brief Main timer callback function
+  /// \brief Main timer callback function
   void timer_callback()
   {
     auto message = std_msgs::msg::UInt64();
@@ -355,7 +355,7 @@ private:
 
 
 };
-
+/// \brief Main FUNCTION TO START NODE
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);

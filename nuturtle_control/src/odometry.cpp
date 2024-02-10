@@ -110,36 +110,36 @@ public:
 
 private:
   /// \brief Publishes the odometry of robot
-  void odometry_callback(const sensor_msgs::msg::JointState &msg)
+  void odometry_callback(const sensor_msgs::msg::JointState & msg)
   {
 
     odom_.header.stamp = get_clock()->now();
     new_wheel_.left = msg.position.at(0) - prev_wheel_.left;
     new_wheel_.right = msg.position.at(1) - prev_wheel_.right;
-    prev_wheel_.left=msg.position.at(0);
-    prev_wheel_.right=msg.position.at(1);
+    prev_wheel_.left = msg.position.at(0);
+    prev_wheel_.right = msg.position.at(1);
     robot_.ForwardKinematics(new_wheel_);
-    Q =robot_.get_config();
-    twistb_=robot_.BodyTwist(new_wheel_);
+    Q = robot_.get_config();
+    twistb_ = robot_.BodyTwist(new_wheel_);
     q_.setRPY(0, 0, Q.theta);
-    odom_.pose.pose.position.x=Q.x;
-    odom_.pose.pose.position.y=Q.y;
-    odom_.pose.pose.orientation.x=q_.x();
-    odom_.pose.pose.orientation.y=q_.y();
-    odom_.pose.pose.orientation.z=q_.z();
-    odom_.pose.pose.orientation.w=q_.w();
-    
-    odom_.twist.twist.linear.x=twistb_.x;
-    odom_.twist.twist.linear.y=twistb_.y;
-    odom_.twist.twist.angular.z=twistb_.omega;
-    
+    odom_.pose.pose.position.x = Q.x;
+    odom_.pose.pose.position.y = Q.y;
+    odom_.pose.pose.orientation.x = q_.x();
+    odom_.pose.pose.orientation.y = q_.y();
+    odom_.pose.pose.orientation.z = q_.z();
+    odom_.pose.pose.orientation.w = q_.w();
+
+    odom_.twist.twist.linear.x = twistb_.x;
+    odom_.twist.twist.linear.y = twistb_.y;
+    odom_.twist.twist.angular.z = twistb_.omega;
+
 
     geometry_msgs::msg::TransformStamped t;
 
     t.header.stamp = get_clock()->now();
     t.header.frame_id = odom_id_;
     t.child_frame_id = body_id_;
-    t.transform.translation.x =Q.x;
+    t.transform.translation.x = Q.x;
     t.transform.translation.y = Q.y;
     t.transform.translation.z = 0.0;
     t.transform.rotation.x = q_.x();
@@ -175,7 +175,7 @@ private:
   nav_msgs::msg::Odometry odom_;
   tf2::Quaternion q_;
   turtlelib::RobotConfig Q;
-  //Pubslishers 
+  //Pubslishers
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odometry_publisher_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscriber_;
