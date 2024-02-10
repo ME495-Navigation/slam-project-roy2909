@@ -107,7 +107,7 @@ private:
   /// \brief Publishes the odometry of robot
   void odometry_callback(const sensor_msgs::msg::JointState & msg)
   {
-
+    //update odometry
     odom_.header.stamp = get_clock()->now();
     new_wheel_.left = msg.position.at(0) - prev_wheel_.left;
     new_wheel_.right = msg.position.at(1) - prev_wheel_.right;
@@ -130,7 +130,7 @@ private:
 
 
     geometry_msgs::msg::TransformStamped t;
-
+    //create transform
     t.header.stamp = get_clock()->now();
     t.header.frame_id = odom_id_;
     t.child_frame_id = body_id_;
