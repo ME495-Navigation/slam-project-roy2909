@@ -55,38 +55,25 @@ public:
   Turtle_control()
   : Node("turtle_control")
   { // wheel_radius
-    auto wheel_radius_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    wheel_radius_desc.description = "Radius of wheels (m)";
-    declare_parameter("wheel_radius", 0.033, wheel_radius_desc);
+    declare_parameter("wheel_radius", 0.033);
     wheel_radius_ = get_parameter("wheel_radius").as_double();
     // track_width
-    auto track_width_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    track_width_desc.description = "Distance between wheels (m)";
-    declare_parameter("track_width", 0.16, track_width_desc);
+    declare_parameter("track_width", 0.16);
     track_width_ = get_parameter("track_width").as_double();
     // motor_cmd_max
-    auto motor_cmd_max_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    motor_cmd_max_desc.description = "The motor command maximum value";
-    declare_parameter("motor_cmd_max", 265, motor_cmd_max_desc);
+    declare_parameter("motor_cmd_max", 265);
     motor_cmd_max_ = get_parameter("motor_cmd_max").as_int();
 
     //  motor_cmd_per_rad_sec
-    auto motor_cmd_per_rad_sec_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    motor_cmd_per_rad_sec_desc.description = "Each motor command unit (mcu) is 0.024 (rad/sec) ";
-    declare_parameter("motor_cmd_per_rad_sec", 0.024, motor_cmd_per_rad_sec_desc);
+    declare_parameter("motor_cmd_per_rad_sec", 0.024);
     motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").as_double();
 
     // encoder_ticks_per_rad
-    auto encoder_ticks_per_rad_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    encoder_ticks_per_rad_desc.description = "The number of encoder ticks per radian (ticks/rad)";
-    declare_parameter("encoder_ticks_per_rad", 651.898646904, encoder_ticks_per_rad_desc);
+    declare_parameter("encoder_ticks_per_rad", 651.898646904);
     encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").as_double();
 
     // collision_radius
-    auto collision_radius_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    collision_radius_desc.description =
-      " This is some simplified geometry used for collision detection (m)";
-    declare_parameter("collision_radius", -1.0, collision_radius_desc);
+    declare_parameter("collision_radius", -1.0);
     collision_radius_ = get_parameter("collision_radius").as_double();
     declare_parameter("rate", 200.0);
     rate_ = get_parameter("rate").as_double();

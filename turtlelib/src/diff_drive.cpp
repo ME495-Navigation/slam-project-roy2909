@@ -31,8 +31,10 @@ namespace turtlelib
     }
     void DiffDrive::ForwardKinematics(WheelPos del_wheels)
     {
-        
-        // [1] Get the body twist Vb
+        // ############################ Begin_Citation [3] ############################
+
+
+        // [3] Get the body twist Vb
 
         Twist2D Vb;
         Vb.omega = ((wheel_radius_ / (2.0 * (wheel_track_/2.0))) * (del_wheels.right - del_wheels.left));
@@ -40,7 +42,7 @@ namespace turtlelib
         Vb.y = 0.0;
 
        
-        // [2] Find the body transformation from the twist
+        // [4] Find the body transformation from the twist
        
         Transform2D T_bb_p = integrate_twist(Vb);
 
@@ -52,13 +54,13 @@ namespace turtlelib
         double d_qb_y = T_bb_p.translation().y;
 
 
-        // [3] Transform dqb in {body frame} to dq in {space frame}
+        // [5] Transform dqb in {body frame} to dq in {space frame}
 
         double dqtheta = d_qb_p_theta;
         double dqx = std::cos(q.theta) * d_qb_x - std::sin(q.theta) * d_qb_y;
         double dqy = std::sin(q.theta) * d_qb_x + std::cos(q.theta) * d_qb_y;
 
-        // [4] Update robot config
+        // [6] Update robot config
 
         q.theta += dqtheta;
         q.theta = normalize_angle(q.theta);
@@ -67,6 +69,7 @@ namespace turtlelib
 
         wheel_position_.left += del_wheels.left;
         wheel_position_.right += del_wheels.right;
+        // ############################ End_Citation [3]  #############################
     }
     
 

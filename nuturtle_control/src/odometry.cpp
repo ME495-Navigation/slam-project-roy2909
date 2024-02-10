@@ -54,14 +54,10 @@ public:
   odometry()
   : Node("odometry")
   { // body_id
-    const auto body_id_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    body_id_desc.description = "body frame of the robot";
-    declare_parameter("body_id", "blue/base_footprint", body_id_desc);
+    declare_parameter("body_id", "blue/base_footprint");
     body_id_ = get_parameter("body_id").get_parameter_value().get<std::string>();
     // odom_id
-    const auto odom_id_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    odom_id_desc.description = "odometry frame (odom)";
-    declare_parameter("odom_id", "odom", odom_id_desc);
+    declare_parameter("odom_id", "odom");
     odom_id_ = get_parameter("odom_id").get_parameter_value().get<std::string>();
 
     declare_parameter("wheel_left", "wheel_left_joint");

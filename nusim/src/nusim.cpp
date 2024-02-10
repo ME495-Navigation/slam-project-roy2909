@@ -180,7 +180,7 @@ public:
 private:
   /// \brief Updates the robot psoition in environmnet
   void update_robot_pos()
-  {
+  {// ############################ Begin_Citation [4]  #############################
     turtlelib::WheelPos wheel_del;
     wheel_del.left = updated_wheel_pos_.left - prev_wheel_pos_.left;
     wheel_del.right = updated_wheel_pos_.right - prev_wheel_pos_.right;
@@ -193,6 +193,7 @@ private:
     //update the previous position
     prev_wheel_pos_.left = updated_wheel_pos_.left;
     prev_wheel_pos_.right = updated_wheel_pos_.right;
+    // ############################ End_Citation [4]  #############################
 
   }
   /// \brief Updates the wheel positions based on sensor data
@@ -219,7 +220,7 @@ private:
     const std::shared_ptr<std_srvs::srv::Empty::Request>,
     std::shared_ptr<std_srvs::srv::Empty::Response>)
   {
-    timestep_ = 0;
+    timestep_ = 0.0;
     x_ = x0_;
     y_ = y0_;
     theta_ = theta0_;
