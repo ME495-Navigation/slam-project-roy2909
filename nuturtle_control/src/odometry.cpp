@@ -33,7 +33,6 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "turtlelib/diff_drive.hpp"
 #include "nuturtle_control/srv/initial_pose.hpp"
-#include "nav_msgs/msg/path.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 using std::placeholders::_1;
 using std::placeholders::_2;
