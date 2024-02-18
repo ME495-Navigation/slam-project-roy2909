@@ -34,6 +34,7 @@
 #include "turtlelib/diff_drive.hpp"
 #include "nuturtle_control/srv/initial_pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav_msgs/msg/path.hpp"
 using std::placeholders::_1;
 using std::placeholders::_2;
 
@@ -86,6 +87,7 @@ public:
 
     // Publishers
     odometry_publisher_ = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
+    bpath_publisher_ =create_publisher<nav_msgs::msg::Path>("blue/path",10);
 
     tf_broadcaster_ =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -141,10 +143,25 @@ private:
     t.transform.rotation.y = q_.y();
     t.transform.rotation.z = q_.z();
     t.transform.rotation.w = q_.w();
+    blue_pose_.header.frame_id="odom";
+    blue_pose_.header.stamp=get_clock()->now();
+    blue_pose_.pose.position.x=Q.x;
+    blue_pose_.pose.position.y=Q.y;
+    blue_pose_.pose.position.z=0.0;
+    blue_pose_.pose.orientation.x=q_.x();
+    blue_pose_.pose.orientation.y=q_.y();
+    blue_pose_.pose.orientation.z=q_.z();
+    blue_pose_.pose.orientation.w=q_.w();
+    blue_path_.header.frame_id="odom";
+    blue_path_.header.stamp=get_clock()->now();
+    blue_path_.poses.push_back(blue_pose_);
+    
 
     // Send the transformation
     tf_broadcaster_->sendTransform(t);
     odometry_publisher_->publish(odom_);
+    //publish path
+    bpath_publisher_->publish(blue_path_);
   }
   /// \brief sets inital pose of robot
   void initial_pose_callback(
@@ -171,12 +188,17 @@ private:
   nav_msgs::msg::Odometry odom_;
   tf2::Quaternion q_;
   turtlelib::RobotConfig Q;
+  nav_msgs::msg::Path blue_path_;
+  geometry_msgs::msg::PoseStamped blue_pose_;
+  
   //Pubslishers
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odometry_publisher_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscriber_;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr bpath_publisher_;
   //Service
   rclcpp::Service<nuturtle_control::srv::InitialPose>::SharedPtr initial_pose_server_;
+
 };
 /// \brief main funtion of node
 int main(int argc, char ** argv)

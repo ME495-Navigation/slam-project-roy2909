@@ -46,6 +46,7 @@
 #include "nuturtlebot_msgs/msg/wheel_commands.hpp"
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
 #include "turtlelib/diff_drive.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 using namespace std::chrono_literals;
 
@@ -77,9 +78,9 @@ public:
   {
     // Parameters
     declare_parameter("rate", 200);
-    declare_parameter("x0", -0.5);
-    declare_parameter("y0", 0.7);
-    declare_parameter("theta0", 1.28);
+    declare_parameter("x0", 0.0);
+    declare_parameter("y0", 0.0);
+    declare_parameter("theta0", 0.0);
     declare_parameter("walls.arena_x_length", 10.0);
     declare_parameter("walls.arena_y_length", 10.0);
     declare_parameter("obstacles.x", std::vector<double>{});
@@ -110,6 +111,7 @@ public:
     sensor_data_publisher_ = create_publisher<nuturtlebot_msgs::msg::SensorData>(
       "red/sensor_data",
       10);
+    path_publisher_ = create_publisher<nav_msgs::msg::Path>("red/path",10);
 
 
     // Subscribers
@@ -195,6 +197,8 @@ private:
     prev_wheel_pos_.left = updated_wheel_pos_.left;
     prev_wheel_pos_.right = updated_wheel_pos_.right;
     // ############################ End_Citation [4]  #############################
+
+   
 
   }
   /// \brief Updates the wheel positions based on sensor data
@@ -317,6 +321,20 @@ private:
     obstacles_publisher_->publish(obstacle_array_);
     //update the robot position
     update_robot_pos();
+    //add red path
+    pose.header.stamp=get_clock()->now();
+    pose.header.frame_id="nusim/world";
+    pose.pose.position.x=x_;
+    pose.pose.position.y=y_;
+    pose.pose.position.z=0.0;
+    pose.pose.orientation.x=q.x();
+    pose.pose.orientation.y=q.y();
+    pose.pose.orientation.z=q.z();
+    pose.pose.orientation.w=q.w();
+    red_path.poses.push_back(pose);
+    red_path.header.stamp=get_clock()->now();
+    red_path.header.frame_id="nusim/world";
+    path_publisher_->publish(red_path);
     //update the wheel position
     update_wheel_pos();
 
@@ -333,6 +351,9 @@ private:
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_subscriber_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
+  geometry_msgs::msg::PoseStamped pose;
+  nav_msgs::msg::Path red_path;
 
   int timestep_;
   int rate_;
