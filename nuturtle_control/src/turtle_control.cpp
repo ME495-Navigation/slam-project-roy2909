@@ -88,8 +88,8 @@ public:
     }
 
     // Publishers
-    wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
-    joint_states_publisher_ = create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
+    wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("/wheel_cmd", 10);
+    joint_states_publisher_ = create_publisher<sensor_msgs::msg::JointState>("/joint_states", 10);
 
     // Subscribers
     cmd_vel_subscriber_ = create_subscription<geometry_msgs::msg::Twist>(
@@ -107,7 +107,7 @@ public:
     robot_ = turtlelib::DiffDrive{wheel_radius_, track_width_};
     duration = 0.0;
     prev_time_step_ = this->now();
-    joint_states_.header.frame_id = "red/base_link";
+    // joint_states_.header.frame_id = "red/base_link";
     joint_states_.name = {"wheel_left_joint", "wheel_right_joint"};
     joint_states_.position = {0.0, 0.0};
     joint_states_.velocity = {0.0, 0.0};
@@ -155,8 +155,8 @@ private:
     duration = (this->now() - prev_time_step_).seconds();
 
     joint_states_.position = {
-      msg.left_encoder / encoder_ticks_per_rad_,
-      msg.right_encoder / encoder_ticks_per_rad_
+      static_cast<double>(msg.left_encoder) / encoder_ticks_per_rad_,
+      static_cast<double>(msg.right_encoder) / encoder_ticks_per_rad_
     };
     joint_states_.velocity = {
       (msg.left_encoder / encoder_ticks_per_rad_) / duration,

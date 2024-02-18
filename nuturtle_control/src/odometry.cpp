@@ -85,13 +85,13 @@ public:
     robot_ = turtlelib::DiffDrive{wheel_radius_, track_width_};
 
     // Publishers
-    odometry_publisher_ = create_publisher<nav_msgs::msg::Odometry>("odom", 10);
+    odometry_publisher_ = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
 
     tf_broadcaster_ =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     // Subscribers
     joint_state_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
-      "red/joint_states", 10, std::bind(
+      "/joint_states", 10, std::bind(
         &odometry::odometry_callback,
         this, _1));
     //Service
@@ -154,6 +154,7 @@ private:
     robot_ = turtlelib::DiffDrive(
       wheel_radius_, track_width_, {0.0, 0.0}, {request->x, request->y,
         request->theta});
+    
   }
 
   // Variables

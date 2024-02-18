@@ -136,6 +136,7 @@ public:
     x_ = x0_;
     y_ = y0_;
     theta_ = theta0_;
+    RCLCPP_ERROR(this->get_logger(), "x_ initial = %f", x0_);
 
     thickness_ = 0.10;
     height_ = 0.25;
@@ -224,6 +225,8 @@ private:
     x_ = x0_;
     y_ = y0_;
     theta_ = theta0_;
+    RCLCPP_ERROR(this->get_logger(), "x_= %f",x0_);
+    robot_.set_config({x_,y_,theta_});
   }
 
   /// \brief Teleport the robot to a desired pose
@@ -234,6 +237,7 @@ private:
     x_ = request->x;
     y_ = request->y;
     theta_ = request->theta;
+    robot_.set_config({x_,y_,theta_});
   }
 
   /// \brief Creates arena walls as a MarkerArray
