@@ -88,6 +88,9 @@ public:
     declare_parameter("obstacles.r", 0.038);
     declare_parameter("motor_cmd_per_rad_sec", 0.024);
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
+    declare_parameter("draw_only", false);
+    declare_parameter("input_noise",0.0);
+    declare_parameter("slip_fraction",0.0)
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -102,6 +105,12 @@ public:
       get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
     encoder_ticks_per_rad_ =
       get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
+
+    draw_only_= get_parameter("draw_only").get_parameter_value().get<bool>();
+    input_noise_=get_parameter("input_noise").get_parameter_value().get<double>();
+    slip_fraction_=get_parameter("slip_fraction").get_parameter_value().get<double>();
+    
+
 
     // Publishers
     timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
@@ -367,6 +376,9 @@ private:
   double arena_x_length_;
   double arena_y_length_;
   double thickness_;
+  bool draw_only_ = false;
+  double input_noise_ = 0.0;
+  double slip_fraction_ = 0.0;
   std::vector<double> obstacles_x_;
   std::vector<double> obstacles_y_;
   double obstacles_r_;
