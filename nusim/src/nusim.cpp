@@ -216,10 +216,10 @@ private:
   }
   /// \brief Updates the wheel positions based on sensor data
   void update_wheel_pos()
-  { //add noise to the wheel position based on the slip fraction
-    auto slip_noise=slip_dist_(get_random());
-    updated_wheel_pos_.left = prev_wheel_pos_.left + (wheel_vel_.left * (1.0 +slip_noise)* (1.0 / rate_));
-    updated_wheel_pos_.right = prev_wheel_pos_.right + (wheel_vel_.right * (1.0 +slip_noise)* (1.0 / rate_));
+  { //add  slip fraction to the wheel position
+    // auto slip_noise=slip_dist_(get_random()); not sure if we need same slip for both wheels
+    updated_wheel_pos_.left = prev_wheel_pos_.left + (wheel_vel_.left * (1.0 +slip_dist_(get_random()))* (1.0 / rate_));
+    updated_wheel_pos_.right = prev_wheel_pos_.right + (wheel_vel_.right * (1.0 +slip_dist_(get_random()))* (1.0 / rate_));
 
     sensor_data_msg_.left_encoder = updated_wheel_pos_.left * encoder_ticks_per_rad_;
     sensor_data_msg_.right_encoder = updated_wheel_pos_.right * encoder_ticks_per_rad_;
@@ -233,15 +233,15 @@ private:
     
     wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_;
     wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_;
-    auto wheel_noise =input_noise_dist_(get_random());
+    // auto wheel_noise =input_noise_dist_(get_random()); not sure if we need same noise for both wheels
     //add noise to the wheel commands when wheel commands are not zero
     if (wheel_vel_.left!=0.0 )
     {
-      wheel_vel_.left+=wheel_noise;
+      wheel_vel_.left+=input_noise_dist_(get_random());
     }
     if (wheel_vel_.right!=0.0)
     {
-      wheel_vel_.right+=wheel_noise;
+      wheel_vel_.right+=input_noise_dist_(get_random());
     }
     
 
