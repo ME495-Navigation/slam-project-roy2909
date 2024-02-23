@@ -107,7 +107,7 @@ public:
     declare_parameter("draw_only", false);
     declare_parameter("input_noise",0.0);
     declare_parameter("slip_fraction",0.0);
-    declare_parameter("max_range", 1.5);
+    declare_parameter("max_range", 2.0);
     declare_parameter("basic_sensor_variance", 0.0);
     declare_parameter("collision_radius", 0.10);
 
@@ -355,13 +355,18 @@ private:
 
   /// \brief Creates fake sensor as a MarkerArray
   void fake_sensor_marker()
-  {
+  { 
+    sensor_array_.markers.clear(); // Clear the MarkerArray
+
+
     const auto sensor_random = input_sensor_dist_(get_random());
-    for (size_t i = 0; i < obstacles_x_.size(); i++){
+    for (size_t i = 0; i < obstacles_x_.size(); ++i){
     visualization_msgs::msg::Marker sensor;
     sensor.header.frame_id = "red/base_footprint";
     sensor.header.stamp = get_clock()->now();
     sensor.id = i;
+    RCLCPP_ERROR(this->get_logger(), "sensor id = %d",i);
+    sensor.ns = "fake_sensor";
     sensor.type = visualization_msgs::msg::Marker::CYLINDER;
     sensor.scale.x = 2.0 * obstacles_r_;
     sensor.scale.y = 2.0 * obstacles_r_;
@@ -381,14 +386,20 @@ private:
     if (distance<=max_range_)
     {
       sensor.action = visualization_msgs::msg::Marker::ADD;
+       
     }
     else
     {
       sensor.action = visualization_msgs::msg::Marker::DELETE;
+      
+      
     }
     sensor_array_.markers.push_back(sensor);
+    
     }
+
     fake_sensor_publisher_->publish(sensor_array_);
+    
   
   }
 
@@ -411,7 +422,7 @@ private:
         x_ = obstacles_x_.at(i) + norm.x * (collision_radius_ + obstacles_r_);
         y_ = obstacles_y_.at(i) + norm.y * (collision_radius_ + obstacles_r_);
         robot_.set_config({x_,y_,theta_});
-          
+
 }
   }}
   /// \brief Main timer callback function
