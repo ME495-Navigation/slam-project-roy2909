@@ -47,6 +47,7 @@
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
 #include "turtlelib/diff_drive.hpp"
 #include "nav_msgs/msg/path.hpp"
+#include <random>
 
 using namespace std::chrono_literals;
 
@@ -90,7 +91,7 @@ public:
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
     declare_parameter("draw_only", false);
     declare_parameter("input_noise",0.0);
-    declare_parameter("slip_fraction",0.0)
+    declare_parameter("slip_fraction",0.0);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -187,6 +188,9 @@ public:
     obstacle_marker();
     update_wheel_pos();
     update_robot_pos();
+
+    input_noise_dist_ = std::normal_distribution<double>(0.0, std::sqrt(input_noise_));
+    slip_dist_=std::uniform_real_distribution<double>(-slip_fraction_,slip_fraction_);
   }
 
 private:
@@ -212,9 +216,10 @@ private:
   }
   /// \brief Updates the wheel positions based on sensor data
   void update_wheel_pos()
-  {
-    updated_wheel_pos_.left = prev_wheel_pos_.left + (wheel_vel_.left * (1.0 / rate_));
-    updated_wheel_pos_.right = prev_wheel_pos_.right + (wheel_vel_.right * (1.0 / rate_));
+  { //add noise to the wheel position based on the slip fraction
+    auto slip_noise=slip_dist_(get_random());
+    updated_wheel_pos_.left = prev_wheel_pos_.left + (wheel_vel_.left * (1.0 +slip_noise)* (1.0 / rate_));
+    updated_wheel_pos_.right = prev_wheel_pos_.right + (wheel_vel_.right * (1.0 +slip_noise)* (1.0 / rate_));
 
     sensor_data_msg_.left_encoder = updated_wheel_pos_.left * encoder_ticks_per_rad_;
     sensor_data_msg_.right_encoder = updated_wheel_pos_.right * encoder_ticks_per_rad_;
@@ -225,8 +230,21 @@ private:
   /// \brief Wheel command callbacks
   void Wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
+    
     wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_;
     wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_;
+    auto wheel_noise =input_noise_dist_(get_random());
+    //add noise to the wheel commands when wheel commands are not zero
+    if (wheel_vel_.left!=0.0 )
+    {
+      wheel_vel_.left+=wheel_noise;
+    }
+    if (wheel_vel_.right!=0.0)
+    {
+      wheel_vel_.right+=wheel_noise;
+    }
+    
+
   }
 
   /// \brief Resets the simulation
@@ -349,6 +367,14 @@ private:
 
   }
 
+  /// \brief Random number generator
+  std::mt19937 & get_random()
+  {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    return gen;
+  }
+
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_;
   rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_;
   rclcpp::TimerBase::SharedPtr timer_;
@@ -363,6 +389,8 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
   geometry_msgs::msg::PoseStamped pose;
   nav_msgs::msg::Path red_path;
+  std::normal_distribution<double> input_noise_dist_;
+  std::uniform_real_distribution<double> slip_dist_;
 
   int timestep_;
   int rate_;
