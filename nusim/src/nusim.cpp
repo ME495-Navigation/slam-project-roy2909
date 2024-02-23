@@ -13,12 +13,22 @@
 ///     \param obstacles.x (std::vector<double>): List of the obstacles' x coordinates (m)
 ///     \param obstacles.y (std::vector<double>): List of the obstacles' y coordinates (m)
 ///     \param obstacles.r (double): Radius of cylindrical obstacles (m)
+///     \param motor_cmd_per_rad_sec (double): Each motor command unit (mcu) is 0.024 (rad/sec)
+///     \param encoder_ticks_per_rad(double): The number of encoder ticks per radian (ticks/rad)
+///     \param draw_only (bool): If true, only draws the environment without simulating the robot
+///     \param input_noise (double): The noise added to the wheel commands
+///     \param slip_fraction (double): The fraction of slip added to the wheel commands
+///     \param max_range (double): The maximum range of the sensor
+///     \param basic_sensor_variance (double): The basic sensor variance
+
 
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): current timestep of the simulation
 ///     \param ~/walls (visualization_msgs::msg::MarkerArray): MarkerArray of Walls in Rviz2
 ///     \param ~/obstacles (visualization_msgs::msg::MarkerArray): MarkerArray of cylindrial obstacles in Rviz2
 ///     \param /red/sensor_data (nuturtlebot_msgs::msg::SensorData): Wheel encoder ticks
+///     \param /red/path (nav_msgs::msg::Path): The path of the robot
+///     \param /fake_sensor (visualization_msgs::msg::MarkerArray): The fake sensor data
 /// SUBSCRIBES:
 ///     \param /red/wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command velocity
 /// SERVERS:
@@ -71,6 +81,11 @@ using namespace std::chrono_literals;
 ///  \param motor_cmd_max (int): The motor command maximum value
 ///  \param motor_cmd_per_rad_sec (double): Each motor command unit (mcu) is 0.024 (rad/sec)
 ///  \param encoder_ticks_per_rad(double): The number of encoder ticks per radian (ticks/rad)
+///  \param draw_only_ (bool): If true, only draws the environment without simulating the robot
+///  \param input_noise_ (double): The noise added to the wheel commands
+///  \param slip_fraction_ (double): The fraction of slip added to the wheel commands
+///  \param max_range_ (double): The maximum range of the sensor
+///  \param basic_sensor_variance_ (double): The basic sensor variance
 class Nusim : public rclcpp::Node
 {
 public:
@@ -94,6 +109,7 @@ public:
     declare_parameter("slip_fraction",0.0);
     declare_parameter("max_range", 1.5);
     declare_parameter("basic_sensor_variance", 0.0);
+    declare_parameter("collision_radius", 0.10);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -114,6 +130,7 @@ public:
     slip_fraction_=get_parameter("slip_fraction").get_parameter_value().get<double>();
     max_range_=get_parameter("max_range").get_parameter_value().get<double>();
     basic_sensor_variance_=get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
+    collision_radius_=get_parameter("collision_radius").get_parameter_value().get<double>();
     
 
 
@@ -248,6 +265,7 @@ private:
     //add noise to the wheel commands when wheel commands are not zero
     if (wheel_vel_.left!=0.0 )
     {
+    
       wheel_vel_.left+=input_noise_dist_(get_random());
     }
     if (wheel_vel_.right!=0.0)
@@ -373,6 +391,29 @@ private:
     fake_sensor_publisher_->publish(sensor_array_);
   
   }
+
+  /// \brief collison detection
+  void collision_detection()
+  {
+    for (size_t i = 0; i < obstacles_x_.size(); i++) {
+    auto distance = std::sqrt(std::pow(obstacles_x_.at(i) - x_, 2) + std::pow(obstacles_y_.at(i) - y_, 2));
+    if (distance <= collision_radius_ + obstacles_r_) {
+        // Collision detected
+        // Compute the line between the robot center and the obstacle center
+         auto line_dist{
+          turtlelib::Vector2D{x_, y_} -
+          turtlelib::Vector2D{obstacles_x_.at(i), obstacles_y_.at(i)}
+        };
+        // Normalize the direction
+        auto norm = turtlelib::normalize_vector(line_dist);
+      
+        // Move the robot's center along this line so that the collision circles are tangent
+        x_ = obstacles_x_.at(i) + norm.x * (collision_radius_ + obstacles_r_);
+        y_ = obstacles_y_.at(i) + norm.y * (collision_radius_ + obstacles_r_);
+        robot_.set_config({x_,y_,theta_});
+          
+}
+  }}
   /// \brief Main timer callback function
   void timer_callback()
   {
@@ -396,6 +437,7 @@ private:
     walls_publisher_->publish(wall_array_);
     obstacles_publisher_->publish(obstacle_array_);
     //update the robot position
+    collision_detection();
     update_robot_pos();
     //add red path
     pose.header.stamp=get_clock()->now();
@@ -415,7 +457,7 @@ private:
     update_wheel_pos();
 
   }
-
+  /// \brief Fake sensor timer callback function
   void timer2_callback()
   {
     fake_sensor_marker();
@@ -423,7 +465,7 @@ private:
 
   /// \brief Random number generator
   std::mt19937 & get_random()
-  {
+  { 
     static std::random_device rd;
     static std::mt19937 gen(rd());
     return gen;
@@ -454,7 +496,7 @@ private:
   double x0_;
   double y0_;
   double theta0_,basic_sensor_variance_;
-  double x_;
+  double x_,collision_radius_;
   double y_;
   double theta_;
   double height_;

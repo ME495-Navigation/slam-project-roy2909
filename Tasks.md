@@ -31,6 +31,9 @@
 * Task C.5 completed
 * Task C.6 completed
 * Task C.7 completed
+* Task C.9 completed
+* Task C.10 completed
+* 
 
 ## Task D
 * Task D.1 completed
@@ -48,5 +51,10 @@
 * Task F.1 completed
 * Task F.2 completed
 * Task F.5 completed
+
+## Task V
+* Task V.1 completed
+* Task V.2 completed
+* bool has to be completed
 
 
