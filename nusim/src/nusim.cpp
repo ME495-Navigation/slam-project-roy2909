@@ -58,6 +58,7 @@
 #include "turtlelib/diff_drive.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include <random>
+#include "sensor_msgs/msg/laser_scan.hpp"
 
 using namespace std::chrono_literals;
 
@@ -110,6 +111,9 @@ public:
     declare_parameter("max_range", 2.0);
     declare_parameter("basic_sensor_variance", 0.0);
     declare_parameter("collision_radius", 0.10);
+    declare_parameter("range_min", 0.11999999731779099);
+    declare_parameter("range_max", 3.5);
+    declare_parameter("num_samples", 360);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -131,6 +135,10 @@ public:
     max_range_=get_parameter("max_range").get_parameter_value().get<double>();
     basic_sensor_variance_=get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
     collision_radius_=get_parameter("collision_radius").get_parameter_value().get<double>();
+    range_min_=get_parameter("range_min").get_parameter_value().get<double>();
+    range_max_=get_parameter("range_max").get_parameter_value().get<double>();
+    num_samples_=get_parameter("num_samples").get_parameter_value().get<int>();
+
     
 
 
@@ -144,6 +152,7 @@ public:
       10);
     path_publisher_ = create_publisher<nav_msgs::msg::Path>("red/path",10);
     fake_sensor_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>("/fake_sensor",10);
+    laser_scan_publisher_ = create_publisher<sensor_msgs::msg::LaserScan>("/scan",10);
 
 
     // Subscribers
@@ -219,6 +228,9 @@ public:
     input_noise_dist_ = std::normal_distribution<double>(0.0, std::sqrt(input_noise_));
     slip_dist_=std::uniform_real_distribution<double>(-slip_fraction_,slip_fraction_);
     input_sensor_dist_ = std::normal_distribution<double>(0.0, std::sqrt(basic_sensor_variance_));
+    // Lidar noise
+    lidar_noise_dist_ = std::normal_distribution<double>(0.0, std::sqrt(basic_sensor_variance_));
+    
   }
 
 private:
@@ -402,6 +414,119 @@ private:
     
   
   }
+  /// \brief lidar simulation
+  void lidar_scan()
+  {
+    sensor_msgs::msg::LaserScan scan;
+    scan.header.stamp = get_clock()->now();
+    scan.header.frame_id = "red/base_scan";
+    scan.angle_min = 0.0;
+    scan.angle_max = 6.2657318115234375;
+    scan.angle_increment = 0.01745329238474369;
+    scan.time_increment =  0.0005574136157520115;
+    scan.scan_time = 0.2066;
+    scan.range_min = range_min_;
+    scan.range_max = range_max_;
+    scan.ranges.resize(num_samples_);
+
+    double x_max,y_max,slope,alpha,a,b,c,det,dist1,dist2;
+    turtlelib::Vector2D p1,p2, wall_int;
+    for (int i =0; i<num_samples_;i++)
+    {   
+      double distance1=1000.0;
+      double min_distance=1000.0;
+      for( size_t j=0;j<obstacles_x_.size();j++)
+      { 
+      x_max=robot_.get_config().x+range_max_*std::cos(i*0.01745329238474369)+robot_.get_config().theta;
+      y_max=robot_.get_config().y+range_max_*std::sin(i*0.01745329238474369)+robot_.get_config().theta;
+      slope=(y_max-robot_.get_config().y)/(x_max-robot_.get_config().x);
+      alpha =robot_.get_config().y-robot_.get_config().x*slope-obstacles_y_.at(j);
+      a=1.0+std::pow(slope,2);
+      b=2.0*(alpha*slope-obstacles_x_.at(j));
+      c=std::pow(alpha,2)+std::pow(obstacles_x_.at(j),2)-std::pow(obstacles_r_,2);
+      det=std::pow(b,2)-4.0*a*c;
+      if(det<0.0)
+      {
+        double wall1_x=arena_x_length_/2.0;
+        double wall1_y=slope*(wall1_x-robot_.get_config().x)+robot_.get_config().y;
+        double wall1_dist =std::sqrt(std::pow(wall1_x-robot_.get_config().x,2)+std::pow(wall1_y-robot_.get_config().y,2));
+
+        double wall2_x=-arena_x_length_/2.0;
+        double wall2_y=slope*(wall2_x-robot_.get_config().x)+robot_.get_config().y;
+        double wall2_dist =std::sqrt(std::pow(wall2_x-robot_.get_config().x,2)+std::pow(wall2_y-robot_.get_config().y,2));
+
+        double wall3_y=arena_y_length_/2.0;
+        double wall3_x=(wall3_y-robot_.get_config().y)/slope+robot_.get_config().x;
+        double wall3_dist =std::sqrt(std::pow(wall3_x-robot_.get_config().x,2)+std::pow(wall3_y-robot_.get_config().y,2));
+
+        double wall4_y=-arena_y_length_/2.0;
+        double wall4_x=(wall4_y-robot_.get_config().y)/slope+robot_.get_config().x;
+        double wall4_dist =std::sqrt(std::pow(wall4_x-robot_.get_config().x,2)+std::pow(wall4_y-robot_.get_config().y,2));
+
+        if((wall1_x-robot_.get_config().x)*(wall1_x-x_max)<0.0 && wall1_dist<min_distance)
+        {
+          distance1=wall1_dist;
+        }
+        if((wall2_x-robot_.get_config().x)*(wall2_x-x_max)<0.0 && wall2_dist<min_distance)
+        {
+          distance1=wall2_dist;
+        }
+        if((wall3_y-robot_.get_config().y)*(wall3_y-y_max)<0.0 && wall3_dist<min_distance)
+        {
+          distance1=wall3_dist;
+        }
+        if((wall4_y-robot_.get_config().y)*(wall4_y-y_max)<0.0 && wall4_dist<min_distance)
+        {
+          distance1=wall4_dist;
+        }
+
+      }
+      else if (det==0.0)
+      {
+        p1.x=(-b)/(2.0*a);
+        p1.y=slope*(p1.x-robot_.get_config().x)+robot_.get_config().y;
+        if((p1.x-robot_.get_config().x)*(p1.x-x_max)<0.0)
+        {
+          distance1=std::sqrt(std::pow(p1.x-robot_.get_config().x,2)+std::pow(p1.y-robot_.get_config().y,2));
+        }
+      }
+      else
+      {
+        p1.x=(-b+std::sqrt(det))/(2.0*a);
+        p1.y=slope*(p1.x-robot_.get_config().x)+robot_.get_config().y;
+        p2.x=(-b-std::sqrt(det))/(2.0*a);
+        p2.y=slope*(p2.x-robot_.get_config().x)+robot_.get_config().y;
+        if((p1.x-robot_.get_config().x)*(p1.x-x_max)<0.0)
+        {
+          dist1=std::sqrt(std::pow(p1.x-robot_.get_config().x,2)+std::pow(p1.y-robot_.get_config().y,2));
+          if(dist1<distance1)
+          {
+            distance1=dist1;
+          }
+        }
+        if((p2.x-robot_.get_config().x)*(p2.x-x_max)<0.0)
+        {
+          dist2=std::sqrt(std::pow(p2.x-robot_.get_config().x,2)+std::pow(p2.y-robot_.get_config().y,2));
+          if(dist2<distance1)
+          {
+            distance1=dist2;
+          }
+        }
+        
+      }
+      if(distance1<min_distance)
+      {
+        min_distance=distance1;
+      }
+      
+    }
+    scan.ranges.at(i)=min_distance + lidar_noise_dist_(get_random());
+    }
+    laser_scan_publisher_->publish(scan);
+
+  }
+  
+  
 
   /// \brief collison detection
   void collision_detection()
@@ -472,6 +597,7 @@ private:
   void timer2_callback()
   {
     fake_sensor_marker();
+    lidar_scan();
   }
 
   /// \brief Random number generator
@@ -497,10 +623,13 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr fake_sensor_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_publisher_;
   geometry_msgs::msg::PoseStamped pose;
   nav_msgs::msg::Path red_path;
   std::normal_distribution<double> input_noise_dist_, input_sensor_dist_;
   std::uniform_real_distribution<double> slip_dist_;
+  std::normal_distribution<double> lidar_noise_dist_;
+  
 
   int timestep_;
   int rate_;
@@ -509,6 +638,8 @@ private:
   double theta0_,basic_sensor_variance_;
   double x_,collision_radius_;
   double y_;
+  double range_min_=0.0;
+  double range_max_ =0.0;
   double theta_;
   double height_;
   double arena_x_length_;
@@ -520,6 +651,7 @@ private:
   std::vector<double> obstacles_x_;
   std::vector<double> obstacles_y_;
   double obstacles_r_;
+  double num_samples_;
   turtlelib::WheelPos wheel_vel_;
   double motor_cmd_per_rad_sec_;
   double encoder_ticks_per_rad_;
@@ -532,6 +664,7 @@ private:
 
 
 };
+
 /// \brief Main FUNCTION TO START NODE
 int main(int argc, char * argv[])
 {
@@ -540,3 +673,115 @@ int main(int argc, char * argv[])
   rclcpp::shutdown();
   return 0;
 }
+
+
+// turtlelib::Vector2D point(double angle)
+//   {
+//     return turtlelib::Vector2D{range_max_ * std::cos(angle), range_max_ * std::sin(angle)};
+//   }
+
+//    /// \brief Tranform to robot frame
+//     turtlelib::Vector2D Transform(turtlelib::Vector2D point)
+//    {
+//      const auto world_to_robot = turtlelib::Transform2D{turtlelib::Vector2D{x_,y_},theta_};
+//      const auto robot_to_world = world_to_robot.inv();
+//      const auto direction_in_robot = robot_to_world(point);
+//      return direction_in_robot;
+//    }
+//   /// \brief Obsctacle distance from the robot
+//   double obstacle_distance(turtlelib::Vector2D point)
+//   {
+//       const auto world_to_robot = turtlelib::Transform2D{turtlelib::Vector2D{x_,y_},theta_};
+//       const auto robot_to_world = world_to_robot.inv();
+//       const auto direction_in_robot = robot_to_world(point);
+//       double d =range_max_;
+//       double slope = direction_in_robot.y -y_ / direction_in_robot.x-x_;
+//       double c = y_ - slope * x_;
+
+//       if (direction_in_robot.x < -arena_x_length_/2.0)
+//       {
+//         turtlelib::Vector2D p1{-arena_x_length_/2.0,slope * -arena_x_length_/2.0 + c};
+//         turtlelib::Vector2D p2 =Transform(p1);
+//         d= std::min(d,std::sqrt(std::pow(p2.x, 2) + std::pow(p2.y, 2)));
+//       }
+//       if (direction_in_robot.x > arena_x_length_/2.0)
+//       {
+//         turtlelib::Vector2D p1{arena_x_length_/2.0,slope * arena_x_length_/2.0 + c};
+//         turtlelib::Vector2D p2 =Transform(p1);
+//         d= std::min(d,std::sqrt(std::pow(p2.x, 2) + std::pow(p2.y, 2)));
+//       }
+//       if (direction_in_robot.y < -arena_y_length_/2.0)
+//       {
+//         turtlelib::Vector2D p1{(arena_y_length_/2.0-c)/slope, -arena_y_length_/2.0};
+//         turtlelib::Vector2D p2 =Transform(p1);
+//         d= std::min(d,std::sqrt(std::pow(p2.x, 2) + std::pow(p2.y, 2)));
+//       }
+//       if(direction_in_robot.y > arena_y_length_/2.0)
+//       {
+//         turtlelib::Vector2D p1{(arena_y_length_/2.0-c)/slope, arena_y_length_/2.0};
+//         turtlelib::Vector2D p2 =Transform(p1);
+//         d= std::min(d,std::sqrt(std::pow(p2.x, 2) + std::pow(p2.y, 2)));
+//       }
+
+    
+//       //obstcles
+//       for(int i = 0; i<obstacles_x_.size();i++)
+//       {
+//        const turtlelib::Transform2D world_to_robot{turtlelib::Vector2D{x_,y_},theta_};
+//       const auto robot_to_world=world_to_robot.inv();
+//       turtlelib::Point2D obstcles_position{obstacles_x_.at(i),obstacles_y_.at(i)};
+//       const auto obstcles_position_in_robot=robot_to_world(obstcles_position);
+//       auto distance = std::sqrt(std::pow(obstcles_position_in_robot.x, 2) + std::pow(obstcles_position_in_robot.y, 2));
+//       if (distance<=range_max_)
+//       {
+//         double d_obstcle = abs(slope * obstcles_position_in_robot.x - obstcles_position_in_robot.y + c) / std::sqrt(std::pow(slope, 2) + 1);
+//         if(d_obstcle<=obstacles_r_)
+//         {
+//           double r_=std::sqrt(std::pow(x_-obstcles_position_in_robot.x, 2) + std::pow(y_-obstcles_position_in_robot.y, 2));
+//           double p_=std::sqrt(std::pow(direction_in_robot.x-obstcles_position_in_robot.x, 2) - std::pow(direction_in_robot.y-obstcles_position_in_robot.y, 2));
+//           if (std::sqrt(std::pow(r_, 2) - std::pow(p_, 2))<=obstacles_r_)
+//           {
+//             d=std::min(d,r_-std::sqrt(std::pow(obstacles_r_, 2) - std::pow(p_, 2)));
+//           }
+//         }
+//       }
+//       if (d==range_max_||d < range_min_)
+//       {
+//         d=0.0;
+//       }
+      
+      
+//     }
+//     return d;
+  
+//   }
+
+//   /// \brief Lidar scan
+//   void lidar_scan()
+//   {
+    
+//     sensor_msgs::msg::LaserScan scan;
+//     scan.ranges.clear();
+//     scan.intensities.clear();
+//     scan.header.stamp = get_clock()->now();
+//     scan.header.frame_id = "red/base_scan";
+//     scan.angle_min = 0.0;
+//     scan.angle_max = 2 * turtlelib::PI;
+//     scan.angle_increment = 0.01745329238474369;
+//     scan.time_increment = 0.0;
+//     scan.scan_time = 0.2;
+//     scan.range_min = range_min_;
+//     scan.range_max = range_max_;
+//     scan.ranges.resize(num_samples_);
+
+//     for (int i=scan.angle_min;i<scan.angle_max;i+=scan.angle_increment)
+
+//     {
+//       turtlelib::Vector2D p = point(i);
+
+//       scan.ranges.push_back(obstacle_distance(p)+lidar_noise_dist_(get_random()));
+//     }
+//     laser_scan_publisher_->publish(scan);
+  
+    
+//   }
