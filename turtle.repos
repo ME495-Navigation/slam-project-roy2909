@@ -3,3 +3,7 @@ repositories:
     type: git
     url: git@github.com:ME495-Navigation/nuturtlebot_msgs.git
     version: humble
+  slam_turtlebot:
+    type: git
+    url: git@github.com:ME495-Navigation/slam-project-roy2909.git
+    version: main
