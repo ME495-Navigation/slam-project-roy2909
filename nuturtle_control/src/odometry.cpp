@@ -87,7 +87,7 @@ public:
 
     // Publishers
     odometry_publisher_ = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
-    bpath_publisher_ =create_publisher<nav_msgs::msg::Path>("blue/path",10);
+    bpath_publisher_ = create_publisher<nav_msgs::msg::Path>("blue/path", 10);
 
     tf_broadcaster_ =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -143,19 +143,19 @@ private:
     t.transform.rotation.y = q_.y();
     t.transform.rotation.z = q_.z();
     t.transform.rotation.w = q_.w();
-    blue_pose_.header.frame_id="odom";
-    blue_pose_.header.stamp=get_clock()->now();
-    blue_pose_.pose.position.x=Q.x;
-    blue_pose_.pose.position.y=Q.y;
-    blue_pose_.pose.position.z=0.0;
-    blue_pose_.pose.orientation.x=q_.x();
-    blue_pose_.pose.orientation.y=q_.y();
-    blue_pose_.pose.orientation.z=q_.z();
-    blue_pose_.pose.orientation.w=q_.w();
-    blue_path_.header.frame_id="odom";
-    blue_path_.header.stamp=get_clock()->now();
+    blue_pose_.header.frame_id = "odom";
+    blue_pose_.header.stamp = get_clock()->now();
+    blue_pose_.pose.position.x = Q.x;
+    blue_pose_.pose.position.y = Q.y;
+    blue_pose_.pose.position.z = 0.0;
+    blue_pose_.pose.orientation.x = q_.x();
+    blue_pose_.pose.orientation.y = q_.y();
+    blue_pose_.pose.orientation.z = q_.z();
+    blue_pose_.pose.orientation.w = q_.w();
+    blue_path_.header.frame_id = "odom";
+    blue_path_.header.stamp = get_clock()->now();
     blue_path_.poses.push_back(blue_pose_);
-    
+
 
     // Send the transformation
     tf_broadcaster_->sendTransform(t);
@@ -171,7 +171,7 @@ private:
     robot_ = turtlelib::DiffDrive(
       wheel_radius_, track_width_, {0.0, 0.0}, {request->x, request->y,
         request->theta});
-    
+
   }
 
   // Variables
@@ -190,7 +190,7 @@ private:
   turtlelib::RobotConfig Q;
   nav_msgs::msg::Path blue_path_;
   geometry_msgs::msg::PoseStamped blue_pose_;
-  
+
   //Pubslishers
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odometry_publisher_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
