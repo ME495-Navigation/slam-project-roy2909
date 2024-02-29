@@ -7,3 +7,4 @@ This repository consists of several ROS2/C++ packages
 - turtlelib - Library to handle 2D rigid body transformations and other functionality.
 - nusim - Simulation and visualization package to display turtlebot3 in Rviz2
 - nuturtle_control - The package contains nodes resposible for the control of the turtlebot in simulation and on the real one.
+- nuslam - The package contains nodes responsible for the SLAM of the turtlebot in simulation and on the real one.
