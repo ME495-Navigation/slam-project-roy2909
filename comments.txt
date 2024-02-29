@@ -1,0 +1,7 @@
+Code does not compile on my computer. I recommend that you clone it into a clean workspace and check again. As per the syllabus I reserve the right to give an automatic 0 for code that does not compile.
+
+For now this means I am not able to provide feedback to you based on running your code. I still provided some feedback based on reading code.
+
+I recommend verifying the following
+1. Robot traverses 1 m in 10 seconds at 0.1 m/s, with a clean Rviz (that is no errors or warnings in any of the display items)
+   Robot turns properly

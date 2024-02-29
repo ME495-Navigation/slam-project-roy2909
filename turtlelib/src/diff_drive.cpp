@@ -48,14 +48,14 @@ namespace turtlelib
 
         // Extract the transformation values from
         // b to b_p
-
+        // const auto
         double d_qb_p_theta = T_bb_p.rotation();
         double d_qb_x = T_bb_p.translation().x;
         double d_qb_y = T_bb_p.translation().y;
 
 
         // [5] Transform dqb in {body frame} to dq in {space frame}
-
+        // const auto
         double dqtheta = d_qb_p_theta;
         double dqx = std::cos(q.theta) * d_qb_x - std::sin(q.theta) * d_qb_y;
         double dqy = std::sin(q.theta) * d_qb_x + std::cos(q.theta) * d_qb_y;
