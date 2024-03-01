@@ -317,7 +317,7 @@ private:
         marker.action = visualization_msgs::msg::Marker::ADD;
         marker.pose.position.x = system_state_.at(3 + 2 * i);
         marker.pose.position.y = system_state_.at(4 + 2 * i);
-        marker.pose.position.z = 0.125;
+        marker.pose.position.z = 0.0;
         marker.scale.x = 2 * obstacle_radius_;
         marker.scale.y = 2 * obstacle_radius_;
         marker.scale.z = 0.25;

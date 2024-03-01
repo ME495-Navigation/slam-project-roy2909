@@ -2,10 +2,10 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>nuslam</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <version>0.1.2</version>
+  <description>Responsible for performing EKF Slam</description>
   <maintainer email="rahulroy2909@gmail.com">rahulroy</maintainer>
-  <license>TODO: License declaration</license>
+  <license>APLv2</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>nuturtlebot_msgs</depend>
