@@ -343,8 +343,6 @@ private:
   double wheel_radius_;
   double track_width_;
   int obs_num = 3;
-  int count = 0;
-  double threshold = 1.0;
   turtlelib::DiffDrive robot_;
   turtlelib::WheelPos prev_wheel_{0.0, 0.0};
   turtlelib::WheelPos new_wheel_;
