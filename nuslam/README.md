@@ -1,6 +1,10 @@
 ## NUSLAM
 This packge implements a Feature-Based Kalman Filter SLAM
 
+Red turtle : simulated ground truth of robot
+Green turtle : pose estimate using EKF SLAM
+Blue turtle : pose estimate using odometry
+
 ## Launch Files
 ros2 launch nuslam slam.launch.xml cmd_src:=teleop robot:=nusim --show-args
 Arguments (pass arguments as '<name>:=<value>'):
