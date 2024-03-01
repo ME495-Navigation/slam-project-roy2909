@@ -1,6 +1,9 @@
 <launch>
-    <arg name="cmd_src" default="teleop"/>
-    <arg name="robot" default="nusim"/>
+    <arg name="cmd_src" default="teleop"
+    description="Source of cmd_vel commands, decides which node publishes command vel to the turtlebot - circle, teleop, none" />
+
+    <arg name="robot" default="nusim"
+    description="Launch in simulation or real robot - nusim, localhost, none" />
   
     <node pkg="tf2_ros"
         exec="static_transform_publisher"

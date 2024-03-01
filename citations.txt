@@ -1,4 +1,5 @@
-1. Worked with Henry, Shail, Kyle, Kassidy, Abhishek, Allen
+1. Worked with Henry, Shail, Kyle, Kassidy, Abhishek, Allen, Nahder
 2. Normalize angle : https://stackoverflow.com/questions/2320986/easy-way-to-keeping-angles-between-179-and-180-degrees
 3. Forward kinematics worked with Henry
 4. Nusim worked with Henry
+5. Used https://mathworld.wolfram.com/Circle-LineIntersection.html for lidar

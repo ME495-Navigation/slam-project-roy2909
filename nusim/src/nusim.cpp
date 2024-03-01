@@ -431,6 +431,8 @@ private:
   {
     return std::sqrt(std::pow(p2.x - p1.x, 2) + std::pow(p2.y - p1.y, 2));
   }
+/// ### Begin_Citation [5]  ###
+///  Used https://mathworld.wolfram.com/Circle-LineIntersection.html
 /// @brief Finds the distance to the intersection point of a line segment and a circle
 /// @param lineStart start point of the line segment
 /// @param lineEnd end point of the line segment
