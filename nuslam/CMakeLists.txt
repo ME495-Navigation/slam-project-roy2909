@@ -22,8 +22,8 @@ find_package(Armadillo REQUIRED)
 
 add_executable(slam src/slam.cpp)
 ament_target_dependencies(slam rclcpp std_msgs std_srvs geometry_msgs sensor_msgs visualization_msgs
- nav_msgs tf2_ros tf2 nuturtlebot_msgs Armadillo)
- target_link_libraries(slam turtlelib::turtlelib  ${ARMADILLO_LIBRARIES})
+nav_msgs tf2_ros tf2 nuturtlebot_msgs Armadillo)
+target_link_libraries(slam turtlelib::turtlelib  ${ARMADILLO_LIBRARIES})
 install(TARGETS
 slam
 DESTINATION lib/${PROJECT_NAME})
