@@ -121,10 +121,10 @@
 
 
     <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"
-    if="$(eval '\'$(var robot)\' != \'nusim\'')"/>
+    if="$(eval '\'$(var robot)\' == \'nusim\' and \'$(var use_rviz)\' == \'true\'')" />
 
     <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_nusim.rviz"
-    if="$(eval '\'$(var robot)\' == \'nusim\'')"/>
+    if="$(eval '\'$(var robot)\' == \'nusim\' and \'$(var use_rviz)\' == \'true\'')"/>
 
 
 
