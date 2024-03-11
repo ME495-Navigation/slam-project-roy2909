@@ -31,18 +31,21 @@ namespace turtlelib
     std::vector<std::vector<Vector2D>> clusters;
     std::vector<Vector2D> current_cluster;
 
-    Vector2D last_point = polar_to_cartesian(ranges_[0], angle_min_);
+    Vector2D first_point = polar_to_cartesian(ranges_[0], angle_min_);
+    Vector2D prev_point = first_point;
+
     for (size_t i = 0; i < ranges_.size(); i++)
     {
         Vector2D current_point = polar_to_cartesian(ranges_[i], angle_min_ + i * angle_increment_);
 
+        // Skip the initial (0, 0) ...temp solution
         if (current_point.x == 0 && current_point.y == 0)
         {
             continue;
         }
 
         // Check the distance threshold
-        Vector2D diff = current_point - last_point;
+        Vector2D diff = current_point - prev_point;
         double distance = magnitude(diff);
 
         if (distance <= distance_threshold)
@@ -74,13 +77,30 @@ namespace turtlelib
             }
         }
 
-        last_point = current_point;
+        prev_point = current_point;
+    }
+
+    // Check if the last and first points are close enough to be in the same cluster
+    Vector2D diff = first_point - prev_point;
+    double distance = magnitude(diff);
+
+    if (distance <= distance_threshold && clusters.size() > 0)
+    {
+        // Merge the last cluster with the first cluster
+        clusters[0].insert(clusters[0].end(), current_cluster.begin(), current_cluster.end());
+    }
+    else if (!current_cluster.empty())
+    {
+        // Check if the last cluster has enough points
+        if (current_cluster.size() >= 3)
+        {
+            // Add the last cluster to the list of clusters
+            clusters.push_back(current_cluster);
+        }
     }
 
     return clusters;
 }
-
-
 
 }
 
