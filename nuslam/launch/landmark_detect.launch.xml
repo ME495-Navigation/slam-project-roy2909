@@ -1,0 +1,18 @@
+<launch>
+    <arg name="cmd_src" default="teleop" />
+    <arg name="robot" default="nusim"/>
+    <arg name="use_rviz" default="true"/>
+
+    <include file="$(find-pkg-share nuturtle_control)/launch/start_robot.launch.xml">
+        <arg name="cmd_src" value="$(var cmd_src)"/>
+        <arg name="robot" value="$(var robot)"/>
+        <arg name="use_rviz" value="false"/>
+      </include>
+
+      <node pkg="nuslam" exec="landmarks" name="landmarks" if="$(eval '\'$(var robot)\' == \'nusim\'')" ></node>
+      <node pkg="tf2_ros"
+      exec="static_transform_publisher"
+      args="0 0 0 0 0 0 nusim/world map"/>
+  <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nuslam)/config/landmark.rviz"/> 
+    
+</launch>

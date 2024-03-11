@@ -114,7 +114,7 @@ public:
     Q_bar = arma::mat(3 + 2 * obs_num, 3 + 2 * obs_num, arma::fill::zeros);
     Q_bar.submat(0, 0, 2, 2) = Q_mat;
     I = arma::mat(3 + 2 * obs_num, 3 + 2 * obs_num, arma::fill::eye);
-    T_map_odom_.header.frame_id = "map";
+    // T_map_odom_.header.frame_id = "map";
 
 
     // Publishers
