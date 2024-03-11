@@ -20,7 +20,9 @@ find_package(Armadillo REQUIRED)
 # you don't need or want to.
 # name is the name of the library without the extension or lib prefix
 # name creates a cmake "target"
-add_library(turtlelib src/geometry2d.cpp src/se2d.cpp src/svg.cpp src/diff_drive.cpp src/landmark_est.cpp)
+add_library(turtlelib src/geometry2d.cpp src/se2d.cpp src/svg.cpp src/diff_drive.cpp src/landmark_est.cpp src/circle_fit.cpp)
+include_directories(${ARMADILLO_INCLUDE_DIRS})
+target_link_libraries(turtlelib ${ARMADILLO_LIBRARIES})
 
 # Use target_include_directories so that #include"mylibrary/header.hpp" works
 # The use of the <BUILD_INTERFACE> and <INSTALL_INTERFACE> is because when
@@ -52,6 +54,7 @@ add_executable(frame_main src/frame_main.cpp)
 # that need to be linked
 # and paths to th locations of header files
 target_link_libraries(frame_main turtlelib)
+
 # target_link_libraries(Name Eigen3::Eigen turtlelib)
 
 find_package(Doxygen)
@@ -78,7 +81,7 @@ if(BUILD_TESTING)
     find_package(Catch2 3 REQUIRED)
     # A test is just an executable that is linked against the unit testing library
     enable_testing()
-    add_executable(turtlelib_test tests/test_geometry2d.cpp  tests/test_se2d.cpp tests/test_svg.cpp tests/test_diff_drive.cpp)
+    add_executable(turtlelib_test tests/test_geometry2d.cpp  tests/test_se2d.cpp tests/test_svg.cpp tests/test_diff_drive.cpp tests/test_circle_fit.cpp)
     target_link_libraries(turtlelib_test turtlelib Catch2::Catch2WithMain)
 # register the test with CTest, telling it what executable to run
     add_test(NAME Testing_Turtlelib COMMAND turtlelib_test)
