@@ -51,7 +51,7 @@ void scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
 {
 std::vector<float> ranges = msg->ranges;
   turtlelib::Landmark landmark= turtlelib::Landmark(ranges, msg->angle_increment, msg->angle_min);
-    std::vector<std::vector<turtlelib::Vector2D>> clusters = landmark.cluster_points(0.1);
+    std::vector<std::vector<turtlelib::Vector2D>> clusters = landmark.cluster_points(0.2);
     visualization_msgs::msg::MarkerArray marker_array;
     auto marker = visualization_msgs::msg::Marker();
     auto cluster_count=1;
@@ -79,7 +79,8 @@ std::vector<float> ranges = msg->ranges;
             cluster_id++;
         }
         cluster_count++;
-        RCLCPP_INFO(this->get_logger(), "Cluster: %d", cluster_count);
+        RCLCPP_INFO(this->get_logger(), "Cluster: %d, Size: %zu", cluster_count, cluster.size());
+
     }
     estimated_landmark_positions_pub_->publish(marker_array);
 

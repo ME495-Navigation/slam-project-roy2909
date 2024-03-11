@@ -26,27 +26,24 @@ namespace turtlelib
         return Vector2D{x, y};
     }
 
-  std::vector<std::vector<Vector2D>> Landmark::cluster_points(double distance_threshold)
+ std::vector<std::vector<Vector2D>> Landmark::cluster_points(double distance_threshold)
 {
     std::vector<std::vector<Vector2D>> clusters;
     std::vector<Vector2D> current_cluster;
 
+    Vector2D last_point = polar_to_cartesian(ranges_[0], angle_min_);
     for (size_t i = 0; i < ranges_.size(); i++)
     {
         Vector2D current_point = polar_to_cartesian(ranges_[i], angle_min_ + i * angle_increment_);
 
-        // Check if the current cluster is empty
-        if (current_cluster.empty())
+        if (current_point.x == 0 && current_point.y == 0)
         {
-            current_cluster.push_back(current_point);
-            continue; // Move to the next iteration to avoid duplicate entry
+            continue;
         }
 
-        Vector2D previous_point = polar_to_cartesian(ranges_[i - 1], angle_min_ + (i - 1) * angle_increment_);
-
-        double dx = current_point.x - previous_point.x;
-        double dy = current_point.y - previous_point.y;
-        double distance = std::sqrt(dx * dx + dy * dy);
+        // Check the distance threshold
+        Vector2D diff = current_point - last_point;
+        double distance = magnitude(diff);
 
         if (distance <= distance_threshold)
         {
@@ -64,18 +61,26 @@ namespace turtlelib
 
             // Start a new cluster with the current point
             current_cluster.clear();
+            current_cluster.push_back(current_point);
         }
-    }
 
-    // Check if the last cluster has enough points
-    if (!current_cluster.empty() && current_cluster.size() >= 3)
-    {
-        // Add the last cluster to the list of clusters
-        clusters.push_back(current_cluster);
+        // Add the last point to the cluster if it is the last iteration
+        if (i == ranges_.size() - 1 && !current_cluster.empty())
+        {
+            if (current_cluster.size() >= 3)
+            {
+                // Add the last cluster to the list of clusters
+                clusters.push_back(current_cluster);
+            }
+        }
+
+        last_point = current_point;
     }
 
     return clusters;
 }
+
+
 
 }
 
