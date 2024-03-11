@@ -106,4 +106,37 @@ namespace turtlelib
         return{circle_x, circle_y, r};
 
     }
+
+bool isCircle(const std::vector<turtlelib::Point2D>& cluster) {
+    if (cluster.size() < 3) {
+        return false;
+    }
+
+    double sumAngles = 0.0;
+    std::vector<double> angles;
+
+    // Compute angles between endpoints and each point on the segment
+    for (size_t i = 1; i < cluster.size() - 1; i++) {
+        double angle = std::atan2(cluster[i].y - cluster[0].y, cluster[i].x - cluster[0].x);
+        angles.push_back(angle);
+        sumAngles += angle;
+    }
+
+    double meanAngle = sumAngles / (cluster.size() - 2);
+
+    // Compute standard deviation of angles
+    double sumSquaredDeviations = 0.0;
+    for (double angle : angles) {
+        double deviation = angle - meanAngle;
+        sumSquaredDeviations += deviation * deviation;
+    }
+    double standardDeviation = std::sqrt(sumSquaredDeviations / (cluster.size() - 2));
+
+    // Check if it is a circle based on thresholds
+    if (standardDeviation < 0.15 && meanAngle >= 90.0 && meanAngle <= 135.0) {
+        return true;
+    }
+
+    return false;
+}
 }

@@ -20,6 +20,12 @@ namespace turtlelib
     ///param points - the points to fit the circle to
     ///\returns the circle parameters
     Circle_chords circle_fit(const std::vector<Vector2D> &points);
+
+    /// \brief Circle classification
+    ///param cluster - the cluster to classify
+    ///\returns true if the cluster is a circle
+    bool isCircle(const std::vector<turtlelib::Point2D>& cluster);
+
 }
 
 
