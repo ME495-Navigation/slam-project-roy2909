@@ -15,7 +15,7 @@ Circle is responsible to make the robot move in a circle at a set velocity and r
         Launch in simulation or real robot - nusim, localhost, none
         (default: 'nusim')
 
-    `use_rviz`:
+    `use_rviz2`:
         Determines whether to use rviz or not - true or false
         (default: 'true')
 

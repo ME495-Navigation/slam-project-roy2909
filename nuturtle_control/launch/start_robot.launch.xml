@@ -4,7 +4,7 @@
         description="Source of cmd_vel commands, decides which node publishes command vel to the turtlebot - circle, teleop, none" />
     <arg name="robot" default="nusim"
         description="Launch in simulation or real robot - nusim, localhost, none" />
-    <arg name="use_rviz" default="true"
+    <arg name="use_rviz2" default="false"
         description="Determines whether to use rviz or not - true or false" />
     <arg name="body_id" default="blue/base_footprint"
         description="body frame of the robot" />
@@ -120,11 +120,12 @@
     </node>
 
 
-    <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"
-    if="$(eval '\'$(var robot)\' == \'nusim\' and \'$(var use_rviz)\' == \'true\'')" />
+    <!-- <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"
+    if="$(eval '\'$(var robot)\' == \'nusim\'')" /> -->
 
     <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_nusim.rviz"
-    if="$(eval '\'$(var robot)\' == \'nusim\' and \'$(var use_rviz)\' == \'true\'')"/>
+    if="$(eval '\'$(var robot)\' == \'nusim\' and \'$(var use_rviz2)\' == \'true\'')">
+    </node>
 
 
 
