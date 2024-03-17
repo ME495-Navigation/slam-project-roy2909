@@ -9,17 +9,20 @@
 #include <algorithm>
 #include <armadillo>
 namespace turtlelib
-{
+{   
+    /// \brief Circle parameters
     struct Circle_chords
-    {
+    {   /// x coordinate of the centroid
         double x_centroid=0.0;
+        /// y coordinate of the centroid
         double y_centroid=0.0;
+        /// radius of the circle
         double radius=0.0;
     };
     /// \brief Circle fitting
     ///param points - the points to fit the circle to
     ///\returns the circle parameters
-    Circle_chords circle_fit(const std::vector<Vector2D> &points);
+    Circle_chords circle_fit(const std::vector<turtlelib::Vector2D> &points);
 
     /// \brief Circle classification
     ///param cluster - the cluster to classify
